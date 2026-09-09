@@ -19,3 +19,7 @@ npm run deploy    # compilar y publicar en GitHub Pages
 ## Claves
 
 Copiar `.env.example` como `.env` y pegar la URL y la anon key del proyecto en Supabase. El `.env` no se sube.
+
+## Base de datos en Supabase
+
+Las tablas y las reglas de acceso (RLS) viven en [`supabase/schema.sql`](supabase/schema.sql), versionadas junto al código. Para aplicarlas: Supabase → tu proyecto → **SQL Editor** → pegar el contenido del archivo → **Run**. Se puede correr de nuevo sin problema si cambia algo (usa `if not exists` / `drop policy if exists`).

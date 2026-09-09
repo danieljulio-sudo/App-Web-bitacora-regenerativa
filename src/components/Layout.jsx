@@ -1,5 +1,6 @@
 import { Link, Outlet } from 'react-router-dom'
 import EstadoConexion from './EstadoConexion.jsx'
+import Sincronizador from './Sincronizador.jsx'
 import './Layout.css'
 
 // Marco común: cabecera con la marca y el estado de conexión; <Outlet /> es el hueco
@@ -7,6 +8,7 @@ import './Layout.css'
 export default function Layout() {
   return (
     <div className="app">
+      <Sincronizador />
       <header className="top">
         <Link to="/" className="brand"><i /> Bitácora Regenerativa</Link>
         <EstadoConexion />

@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '../lib/db.js'
 import { listarIndicadores } from '../lib/catalogo.js'
 import { obtenerBorrador, crearBorrador, cerrarBitacora, contarVistos } from '../lib/bitacoraVisitante.js'
+import { sincronizarPendientes } from '../lib/sincronizar.js'
 import './visitante/Visitante.css'
 import Bienvenida from './visitante/Bienvenida.jsx'
 import Recorrido from './visitante/Recorrido.jsx'
@@ -68,6 +69,7 @@ export default function Visitante() {
     })
     setBitacora(null)
     setEtapa('gracias')
+    sincronizarPendientes() // no se espera: si hay señal, sube sola en segundo plano
   }
 
   function nuevaBitacora() {
