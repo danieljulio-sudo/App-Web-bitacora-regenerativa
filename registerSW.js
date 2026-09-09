@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/App-Web-bitacora-regenerativa/sw.js', { scope: '/App-Web-bitacora-regenerativa/' })})}

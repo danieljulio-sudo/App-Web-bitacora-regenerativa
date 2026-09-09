@@ -1,14 +1,1 @@
-{
-  "name": "Bitácora Regenerativa",
-  "short_name": "Bitácora",
-  "description": "Registra las señales de regeneración que ves durante el recorrido.",
-  "start_url": "./",
-  "scope": "./",
-  "display": "standalone",
-  "background_color": "#EEF0EA",
-  "theme_color": "#2F6B3A",
-  "lang": "es",
-  "icons": [
-    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
-  ]
-}
+{"name":"Bitácora Regenerativa","short_name":"Bitácora","description":"Registra las señales de regeneración que ves durante el recorrido.","start_url":"/App-Web-bitacora-regenerativa/","display":"standalone","background_color":"#EEF0EA","theme_color":"#2F6B3A","lang":"es","scope":"/App-Web-bitacora-regenerativa/","icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
