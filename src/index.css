@@ -1,0 +1,42 @@
+/* Paleta y tipografía del proyecto. Cambiar un color aquí lo cambia en toda la app. */
+:root {
+  --paper: #EEF0EA; --surface: #FAFBF8; --ink: #24211C; --ink-soft: #4A473F; --muted: #6E7266;
+  --line: #D5D9CF; --cacao: #5B3A21; --cacao-soft: #E9DED3; --leaf: #2F6B3A; --leaf-deep: #1F4A28;
+  --leaf-soft: #DCE9DD; --pollen: #C4900F; --pollen-soft: #F5E8C4; --sky: #DCE7EA;
+  --shadow: 0 10px 30px rgba(36, 33, 28, .10);
+  --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --body: "Literata", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #171814; --surface: #22241E; --ink: #ECEAE1; --ink-soft: #C9C6BA; --muted: #969A8C;
+    --line: #3A3D34; --cacao: #C9976F; --cacao-soft: #3A2E23; --leaf: #7FBF86; --leaf-deep: #A9D9AE;
+    --leaf-soft: #253A2A; --pollen: #E4B53A; --pollen-soft: #3D3416; --sky: #2A3538;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--pollen); outline-offset: 2px; }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -.015em; line-height: 1.08; margin: 0 0 8px; text-wrap: balance; }
+h1 { font-size: 30px; }
+h2 { font-size: 22px; }
+p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
+.eyebrow { font-family: var(--display); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--leaf); margin: 0 0 4px; }
+.muted { color: var(--muted); font-size: 14px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 18px; border-radius: 14px; border: 0; background: var(--leaf); color: #fff; font-family: var(--display); font-weight: 700; font-size: 17px; text-decoration: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+.btn.soft { background: var(--leaf-soft); color: var(--leaf-deep); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
+.pill { display: inline-block; font-family: var(--display); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 10px; background: var(--leaf-soft); color: var(--leaf-deep); }
+.pill.warn { background: var(--pollen-soft); color: var(--pollen); }
+.pill.off { background: var(--cacao-soft); color: var(--cacao); }

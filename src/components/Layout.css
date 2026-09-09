@@ -1,0 +1,8 @@
+.app { max-width: 440px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--paper); }
+@media (min-width: 520px) {
+  .app { margin: 24px auto; min-height: calc(100vh - 48px); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
+}
+.top { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 8px; gap: 12px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--leaf); display: inline-block; }
+.screen { flex: 1; display: flex; flex-direction: column; padding: 8px 20px 28px; }
