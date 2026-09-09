@@ -1,0 +1,70 @@
+/* Estilos de las 5 pantallas del visitante. Reutiliza los colores y
+   tipografías definidas como variables en src/index.css — aquí solo se arma
+   la forma de cada pieza (formularios, tarjetas, contador, estrellas...). */
+
+label { display: block; font-family: var(--display); font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
+input[type='text'], select, textarea {
+  width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+textarea { min-height: 84px; resize: vertical; }
+
+.stack { display: grid; gap: 10px; margin-top: auto; padding-top: 18px; }
+
+/* franja de íconos en la bienvenida */
+.preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
+.preview .thumb {
+  aspect-ratio: 1; border-radius: 12px; background: var(--leaf-soft); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+}
+
+/* barra de progreso del recorrido */
+.progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
+.progress .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.progress .bar i { display: block; height: 100%; background: var(--leaf); transition: width .3s ease; }
+.progress span { font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* tarjetas de indicadores */
+.tarjetas { display: grid; gap: 12px; }
+.tarjeta {
+  display: grid; grid-template-columns: 96px 1fr; gap: 0; background: var(--surface); border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden; text-align: left; padding: 0; position: relative;
+}
+.tarjeta-img { aspect-ratio: 1; background: var(--leaf-soft); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.tarjeta-body { padding: 12px 14px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
+.tarjeta-nombre { font-family: var(--display); font-weight: 700; font-size: 16px; line-height: 1.15; }
+.tarjeta-pista { font-size: 13px; color: var(--muted); line-height: 1.35; }
+.estado { margin-top: auto; padding-top: 6px; }
+.estado.pendiente { font-family: var(--display); font-weight: 500; font-size: 13px; color: var(--muted); }
+.photo-dot {
+  position: absolute; top: 8px; left: 8px; background: var(--surface); border-radius: 999px; padding: 2px 7px;
+  font-size: 11px; font-family: var(--display); font-weight: 700; color: var(--cacao); border: 1px solid var(--line);
+}
+
+/* pantalla de detalle */
+.back { background: transparent; border: 0; padding: 4px 0; color: var(--muted); font-family: var(--display); font-weight: 700; font-size: 14px; text-align: left; }
+.hero {
+  border-radius: 20px; background: var(--leaf-soft); aspect-ratio: 4 / 3; margin: 4px 0 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 72px;
+}
+.why { background: var(--pollen-soft); border-left: 3px solid var(--pollen); padding: 10px 14px; border-radius: 0 12px 12px 0; font-size: 15px; margin: 0 0 16px; color: var(--ink); }
+.q { font-family: var(--display); font-weight: 700; font-size: 16px; margin: 16px 0 8px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg button { padding: 13px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-weight: 700; font-size: 16px; }
+.seg button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+.counter { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; }
+.counter button { height: 56px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-size: 26px; font-weight: 700; }
+.counter output { text-align: center; font-family: var(--display); font-weight: 700; font-size: 40px; font-variant-numeric: tabular-nums; }
+
+.photo { display: grid; gap: 8px; }
+.photo img { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; }
+.file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+
+/* estrellas de la pantalla de cierre */
+.stars { display: flex; gap: 6px; }
+.stars button { flex: 1; aspect-ratio: 1; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-weight: 700; font-size: 18px; }
+.stars button[aria-pressed='true'] { background: var(--pollen); border-color: var(--pollen); color: #24211C; }
+.scale-hint { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* número grande de la pantalla de gracias */
+.big { font-family: var(--display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -.03em; color: var(--leaf); margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
