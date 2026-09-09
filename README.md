@@ -1,16 +1,21 @@
-# React + Vite
+# Bitácora Regenerativa
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+App web para medir el impacto regenerativo de recorridos de cacao: el visitante registra
+señales de regeneración durante el recorrido, el guía valida y la finca ve resultados en el tiempo.
 
-Currently, two official plugins are available:
+- **Código (rama `main`)**: proyecto React + Vite en esta carpeta.
+- **Sitio publicado (rama `gh-pages`)**: https://danieljulio-sudo.github.io/App-Web-bitacora-regenerativa/
+- **Demo estático** (prototipo v0.1): `public/demo/` → `/demo/` en el sitio.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Comandos
 
-## React Compiler
+```bash
+npm install       # instalar dependencias (una vez)
+npm run dev       # servidor local para desarrollar
+npm run build     # compilar a la carpeta dist/
+npm run deploy    # compilar y publicar en GitHub Pages
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Claves
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Copiar `.env.example` como `.env` y pegar la URL y la anon key del proyecto en Supabase. El `.env` no se sube.
