@@ -68,15 +68,22 @@ export async function marcarValidado(id) {
 
 // RF-10: lo que el grupo marcó, agrupado por estación e indicador — no por
 // visitante, porque RF-11 pide validar "cada observación agregada", no una
-// por una. Las bitácoras del recorrido son las de su ruta creadas entre que
-// se inició y (si ya cerró) que se cerró.
+// por una. Las bitácoras del recorrido son las de su ruta que LLEGARON a
+// Supabase entre que el recorrido se inició y (si ya cerró) que se cerró.
+//
+// Ojo: filtramos por `recibida_en` (la hora del RELOJ DE SUPABASE cuando
+// llegó la fila), no por `creada_en` (la hora del CELULAR del visitante).
+// Si comparáramos con `creada_en`, un celular con el reloj desajustado —
+// pasa más seguido de lo que uno cree — podía quedar fuera de la ventana
+// aunque el visitante hiciera el recorrido en el momento correcto. El
+// reloj del servidor es el único en el que todos podemos confiar por igual.
 export async function resumenRecorrido(recorrido) {
   let consulta = supabase
-    .from('bitacoras').select('id, nombre_visitante, pais, correo, origen, creada_en')
+    .from('bitacoras').select('id, nombre_visitante, pais, correo, origen, creada_en, recibida_en')
     .eq('ruta_id', recorrido.rutaId)
-    .gte('creada_en', recorrido.iniciadoEn)
+    .gte('recibida_en', recorrido.iniciadoEn)
     .order('creada_en')
-  if (recorrido.cerradoEn) consulta = consulta.lte('creada_en', recorrido.cerradoEn)
+  if (recorrido.cerradoEn) consulta = consulta.lte('recibida_en', recorrido.cerradoEn)
   const { data: bitacoras, error: errorBitacoras } = await consulta
   if (errorBitacoras) throw errorBitacoras
 

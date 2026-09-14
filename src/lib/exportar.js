@@ -10,9 +10,12 @@ import { supabase } from './supabase.js'
 // en menos de 2 segundos con señal débil).
 export async function exportarRecorridoExcel(recorrido, ruta) {
   const XLSX = await import('xlsx')
+  // Mismo criterio que resumenRecorrido: por reloj del servidor
+  // (`recibida_en`), no del celular (`creada_en`) — ver el comentario en
+  // lib/recorridoGuia.js.
   const { data: bitacoras, error: e1 } = await supabase
-    .from('bitacoras').select('*').eq('ruta_id', recorrido.rutaId).gte('creada_en', recorrido.iniciadoEn)
-    .lte('creada_en', recorrido.cerradoEn ?? new Date().toISOString())
+    .from('bitacoras').select('*').eq('ruta_id', recorrido.rutaId).gte('recibida_en', recorrido.iniciadoEn)
+    .lte('recibida_en', recorrido.cerradoEn ?? new Date().toISOString())
   if (e1) throw e1
   const ids = (bitacoras ?? []).map((b) => b.id)
 
