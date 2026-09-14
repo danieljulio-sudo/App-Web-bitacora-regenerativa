@@ -1,31 +1,36 @@
 import { Link } from 'react-router-dom'
 import { supabaseListo } from '../lib/supabase.js'
 
-// Lista de entradas de la app. Cambiar este arreglo cambia las tarjetas de abajo.
-const entradas = [
-  { a: '/visitante', titulo: 'Visitante', texto: 'Registra lo que ves durante el recorrido.', paso: 'Paso 5' },
-  { a: '/guia', titulo: 'Guía', texto: 'Inicia el recorrido y valida las observaciones del grupo.', paso: 'Paso 6' },
-  { a: '/admin', titulo: 'Panel de la finca', texto: 'Catálogo, rutas, QR y resultados en el tiempo.', paso: 'Paso 7' },
-]
-
 export default function Inicio() {
   return (
     <>
-      <p className="eyebrow">Versión en construcción</p>
-      <h1>Bitácora Regenerativa</h1>
-      <p>Tres entradas, una sola base de datos. Cada una se construye en su paso.</p>
+      <p className="eyebrow">Bitácora Regenerativa</p>
+      <h1>Mide el impacto regenerativo de tus recorridos</h1>
+      <p>El visitante registra lo que ve durante el recorrido, el guía valida y la finca ve los resultados en el tiempo.</p>
+
       <div style={{ display: 'grid', gap: 12, marginTop: 8 }}>
-        {entradas.map((e) => (
-          <Link key={e.a} to={e.a} className="card" style={{ textDecoration: 'none' }}>
-            <span className="pill warn">{e.paso}</span>
-            <h2 style={{ marginTop: 8 }}>{e.titulo}</h2>
-            <p style={{ margin: 0 }}>{e.texto}</p>
-          </Link>
-        ))}
+        <div className="card">
+          <span className="pill">Visitante</span>
+          <h2 style={{ marginTop: 8 }}>Escanea el QR de tu ruta</h2>
+          <p style={{ margin: '0 0 10px' }}>Cada ruta tiene su propio código, ubicado al inicio del recorrido. No necesita instalar nada.</p>
+          <Link to="/r/ruta-cacao" className="btn ghost">Probar con la ruta de ejemplo →</Link>
+        </div>
+
+        <Link to="/guia" className="card" style={{ textDecoration: 'none' }}>
+          <span className="pill warn">Guía</span>
+          <h2 style={{ marginTop: 8 }}>Guía</h2>
+          <p style={{ margin: 0 }}>Inicia el recorrido, valida las observaciones del grupo y registra las tuyas.</p>
+        </Link>
+
+        <Link to="/admin" className="card" style={{ textDecoration: 'none' }}>
+          <span className="pill off">Finca</span>
+          <h2 style={{ marginTop: 8 }}>Panel de la finca</h2>
+          <p style={{ margin: 0 }}>Catálogo, rutas, QR, recorridos y usuarios.</p>
+        </Link>
       </div>
+
       <p className="muted" style={{ marginTop: 20 }}>
-        Nube: {supabaseListo ? 'conectada a Supabase' : 'sin configurar todavía (paso 2)'} ·{' '}
-        <a href={import.meta.env.BASE_URL + 'demo/'}>ver el demo</a>
+        Nube: {supabaseListo ? 'conectada a Supabase' : 'sin configurar — falta el archivo .env'}
       </p>
     </>
   )

@@ -2,6 +2,11 @@
 @media (min-width: 520px) {
   .app { margin: 24px auto; min-height: calc(100vh - 48px); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
 }
+/* el panel de la finca necesita más ancho: tablas, formularios de varias columnas */
+.app.ancho { max-width: 440px; }
+@media (min-width: 900px) {
+  .app.ancho { max-width: 880px; }
+}
 .top { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 8px; gap: 12px; }
 .brand { font-family: var(--display); font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; text-decoration: none; }
 .brand i { width: 10px; height: 10px; border-radius: 50%; background: var(--leaf); display: inline-block; }

@@ -20,3 +20,15 @@ export function comprimirFoto(archivo, ladoMaximo = 900, calidad = 0.7) {
     img.src = url
   })
 }
+
+// El data URL sirve para guardar en Dexie y mostrar <img src="..."> gratis,
+// pero Supabase Storage necesita un archivo real (Blob) para subirlo. Esta
+// conversión es local y no vuelve a tocar la cámara ni a recomprimir nada.
+export function dataUrlABlob(dataUrl) {
+  const [cabecera, base64] = dataUrl.split(',')
+  const tipo = cabecera.match(/:(.*?);/)[1]
+  const binario = atob(base64)
+  const bytes = new Uint8Array(binario.length)
+  for (let i = 0; i < binario.length; i++) bytes[i] = binario.charCodeAt(i)
+  return new Blob([bytes], { type: tipo })
+}

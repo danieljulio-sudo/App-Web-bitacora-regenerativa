@@ -36,7 +36,20 @@ p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
 .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
 .btn.soft { background: var(--leaf-soft); color: var(--leaf-deep); }
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; }
-.pill { display: inline-block; font-family: var(--display); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 10px; background: var(--leaf-soft); color: var(--leaf-deep); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; text-decoration: none; display: block; }
+.pill { display: inline-block; font-family: var(--display); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 10px; background: var(--leaf-soft); color: var(--leaf-deep); border: 0; cursor: pointer; text-decoration: none; }
 .pill.warn { background: var(--pollen-soft); color: var(--pollen); }
-.pill.off { background: var(--cacao-soft); color: var(--cacao); }
+.pill.off { background: var(--line); color: var(--muted); }
+
+/* tablas del panel de la finca y de la app del guía */
+.tabla-envoltura { overflow-x: auto; margin: 0 0 4px; border: 1px solid var(--line); border-radius: 14px; }
+.tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabla th, .tabla td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tabla th { font-family: var(--display); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.tabla tr:last-child td { border-bottom: 0; }
+.fila-validacion { display: flex; gap: 4px; }
+
+/* pestañas del panel de la finca */
+.pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 20px; padding-bottom: 2px; }
+.pestanas a { flex: none; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 13px; text-decoration: none; color: var(--muted); }
+.pestanas a.activa { background: var(--ink); color: var(--paper); border-color: var(--ink); }

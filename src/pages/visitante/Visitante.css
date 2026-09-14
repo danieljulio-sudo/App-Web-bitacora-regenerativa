@@ -2,6 +2,14 @@
    tipografías definidas como variables en src/index.css — aquí solo se arma
    la forma de cada pieza (formularios, tarjetas, contador, estrellas...). */
 
+/* interruptor de idioma, arriba de la bienvenida */
+.idiomas { display: flex; gap: 6px; justify-content: flex-end; margin-bottom: 8px; }
+.idiomas button {
+  padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface);
+  font-family: var(--display); font-weight: 700; font-size: 12px; color: var(--muted);
+}
+.idiomas button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
 label { display: block; font-family: var(--display); font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
 input[type='text'], select, textarea {
   width: 100%; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);

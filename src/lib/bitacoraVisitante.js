@@ -1,25 +1,28 @@
 import { db } from './db.js'
 
-// Todo lo que necesita la pantalla de Visitante para leer y guardar en la
-// base local vive en este archivo. Los componentes de React no escriben
-// Dexie directamente: llaman a estas funciones con nombre claro. Así, si
-// mañana cambia cómo se guarda algo, solo se toca aquí.
+// Todo lo que necesita la app del visitante (y, reusado, la observación
+// propia del guía — RF-12) para leer y guardar en la base local vive en
+// este archivo. Los componentes de React no escriben Dexie directamente:
+// llaman a estas funciones con nombre claro.
 
-// Solo puede haber una bitácora "en curso" (borrador) a la vez en este
-// celular — igual que en el prototipo, que guardaba un único "draft".
-export function obtenerBorrador() {
-  return db.bitacoras.where('estado').equals('borrador').first()
+// Solo puede haber una bitácora "en curso" (borrador) a la vez por ruta en
+// este celular.
+export function obtenerBorrador(rutaId) {
+  return db.bitacoras.where({ estado: 'borrador', rutaId }).first()
 }
 
-export async function crearBorrador({ nombreVisitante, pais }) {
+export async function crearBorrador({ rutaId, recorridoId = null, origen = 'visitante', idioma = 'es', nombreVisitante, pais, correo }) {
   const bitacora = {
     id: crypto.randomUUID(),
     estado: 'borrador',
+    rutaId,
+    recorridoId,
+    origen, // 'visitante' | 'guia' (RF-12: observación propia del guía)
+    idioma,
     creadaEn: new Date().toISOString(),
     nombreVisitante,
-    pais,
-    aprendizaje: null,
-    comentario: '',
+    pais: pais || null,
+    correo: correo || null,
   }
   await db.bitacoras.add(bitacora)
   return bitacora
@@ -30,17 +33,30 @@ export function obtenerObservaciones(bitacoraId) {
 }
 
 // Un indicador solo tiene una observación por bitácora, así que el id se
-// arma con los dos ("bitacoraId:indicadorId"): guardar dos veces el mismo
-// indicador sobreescribe la respuesta anterior en vez de duplicarla.
-export function idObservacion(bitacoraId, indicadorId) {
-  return `${bitacoraId}:${indicadorId}`
+// arma con los tres ("bitacoraId:estacionId:indicadorId"): guardar dos
+// veces el mismo indicador sobreescribe la respuesta anterior en vez de
+// duplicarla.
+export function idObservacion(bitacoraId, estacionId, indicadorId) {
+  return `${bitacoraId}:${estacionId}:${indicadorId}`
 }
 
-export async function guardarObservacion(bitacoraId, indicadorId, { visto, cantidad }) {
-  const id = idObservacion(bitacoraId, indicadorId)
+// `respuesta` trae lo que aplique según el tipo de medición del indicador
+// (RF-04: conteo, sí/no, escala y foto) — el resto se guarda vacío para no
+// dejar basura de un tipo que no corresponde.
+export async function guardarObservacion(bitacoraId, estacionId, indicador, { visto, cantidad, escala }) {
+  const id = idObservacion(bitacoraId, estacionId, indicador.id)
   const previa = await db.observaciones.get(id)
   const tieneFoto = visto ? Boolean(previa?.tieneFoto) : false
-  await db.observaciones.put({ id, bitacoraId, indicadorId, visto, cantidad: visto ? cantidad : 0, tieneFoto })
+  await db.observaciones.put({
+    id,
+    bitacoraId,
+    estacionId,
+    indicadorId: indicador.id,
+    visto,
+    cantidad: visto && indicador.tipoMedicion === 'conteo' ? (cantidad ?? 1) : 0,
+    escala: visto && indicador.tipoMedicion === 'escala' ? (escala ?? null) : null,
+    tieneFoto,
+  })
   if (!visto) await eliminarFoto(id)
   return id
 }
@@ -50,9 +66,7 @@ export function obtenerFoto(observacionId) {
 }
 
 // La foto usa el mismo id que su observación: como mucho hay una foto por
-// observación, y guardar una nueva reemplaza la anterior sola. Además
-// marcamos tieneFoto en la observación para que la tarjeta de la lista no
-// tenga que consultar la tabla de fotos solo para mostrar el sello "📷".
+// observación, y guardar una nueva reemplaza la anterior sola.
 export async function guardarFoto(observacionId, dataUrl) {
   await db.fotos.put({ id: observacionId, observacionId, dataUrl, creadaEn: new Date().toISOString() })
   await db.observaciones.update(observacionId, { tieneFoto: true })
@@ -63,17 +77,32 @@ export async function eliminarFoto(observacionId) {
   await db.observaciones.update(observacionId, { tieneFoto: false })
 }
 
+// Preguntas de cierre (RF-06): `valores` es { [preguntaId]: numero|texto },
+// tal como las junta la pantalla de Cierre. Cada pregunta define su propio
+// tipo, así que aquí decidimos en cuál columna va cada respuesta.
+export async function guardarRespuestas(bitacoraId, preguntas, valores) {
+  const filas = preguntas.map((p) => ({
+    id: `${bitacoraId}:${p.id}`,
+    bitacoraId,
+    preguntaId: p.id,
+    valorNum: p.tipo === 'escala' ? (valores[p.id] ?? null) : null,
+    valorTexto: p.tipo === 'texto' ? (valores[p.id] ?? '') : null,
+  }))
+  await db.respuestas.bulkPut(filas)
+}
+
 // Cierra el borrador: pasa de "borrador" a "pendiente" (lista para subir a
 // Supabase cuando haya señal). A partir de aquí ya no se edita.
-export async function cerrarBitacora(bitacoraId, { aprendizaje, comentario }) {
-  await db.bitacoras.update(bitacoraId, {
-    estado: 'pendiente',
-    aprendizaje,
-    comentario,
-    enviadaEn: new Date().toISOString(),
-  })
+export async function cerrarBitacora(bitacoraId) {
+  await db.bitacoras.update(bitacoraId, { estado: 'pendiente', enviadaEn: new Date().toISOString() })
 }
 
 export function contarVistos(observaciones) {
   return observaciones.filter((o) => o.visto).length
+}
+
+// Aplana las estaciones de una ruta en una sola lista de indicadores, en el
+// orden en que aparecen — sirve para el resumen final ("viste 8 de 12").
+export function todosLosIndicadores(estaciones) {
+  return estaciones.flatMap((e) => e.indicadores)
 }

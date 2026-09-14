@@ -1,18 +1,22 @@
 import { useState } from 'react'
+import { campo } from '../../i18n/textos.js'
 
-// Dos preguntas de cierre (qué tanto aprendió, qué le llamó la atención) y
-// el botón que envía la bitácora. "Enviar" en este paso solo significa
-// "pasar de borrador a pendiente" en la base local — subirla a Supabase es
-// trabajo de otra pieza (el sincronizador), no de esta pantalla.
-export default function Cierre({ bitacora, onVolver, onEnviar }) {
-  const [aprendizaje, setAprendizaje] = useState(bitacora.aprendizaje ?? null)
-  const [comentario, setComentario] = useState(bitacora.comentario ?? '')
+// Preguntas de cierre (RF-06), definidas por la finca desde el panel — nada
+// fijo en el código. "Enviar" aquí solo significa "pasar de borrador a
+// pendiente" en la base local; subirla a Supabase es trabajo del
+// sincronizador, no de esta pantalla.
+export default function Cierre({ preguntas, idioma, textos, onVolver, onEnviar }) {
+  const [valores, setValores] = useState({})
   const [enviando, setEnviando] = useState(false)
+
+  function setValor(preguntaId, valor) {
+    setValores((v) => ({ ...v, [preguntaId]: valor }))
+  }
 
   async function enviar() {
     setEnviando(true)
     try {
-      await onEnviar({ aprendizaje, comentario })
+      await onEnviar(valores)
     } finally {
       setEnviando(false)
     }
@@ -20,35 +24,35 @@ export default function Cierre({ bitacora, onVolver, onEnviar }) {
 
   return (
     <>
-      <button className="back" type="button" onClick={onVolver}>← Volver a la lista</button>
-      <p className="eyebrow">Casi listo</p>
-      <h2>Antes de irte</h2>
-      <p>Dos preguntas cortas. Esto le sirve a la finca tanto como lo que viste.</p>
+      <button className="back" type="button" onClick={onVolver}>{textos.volverALista}</button>
+      <p className="eyebrow">{textos.casiListo}</p>
+      <h2>{textos.antesDeIrte}</h2>
+      <p>{textos.dosPreguntas}</p>
 
-      <div className="q">¿Qué tanto aprendiste hoy sobre el suelo y el bosque?</div>
-      <div className="stars">
-        {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" aria-pressed={aprendizaje === v} onClick={() => setAprendizaje(v)}>
-            {v}
-          </button>
-        ))}
-      </div>
-      <div className="scale-hint">
-        <span>Nada nuevo</span>
-        <span>Muchísimo</span>
-      </div>
-
-      <label htmlFor="comentario">¿Qué fue lo que más te llamó la atención?</label>
-      <textarea
-        id="comentario"
-        placeholder="Opcional"
-        value={comentario}
-        onChange={(e) => setComentario(e.target.value)}
-      />
+      {preguntas.map((p) => (
+        <div key={p.id}>
+          <div className="q">{campo(p, 'texto', idioma)}</div>
+          {p.tipo === 'escala' ? (
+            <>
+              <div className="stars">
+                {[1, 2, 3, 4, 5].map((v) => (
+                  <button key={v} type="button" aria-pressed={valores[p.id] === v} onClick={() => setValor(p.id, v)}>{v}</button>
+                ))}
+              </div>
+              <div className="scale-hint">
+                <span>{campo(p, 'minimo', idioma)}</span>
+                <span>{campo(p, 'maximo', idioma)}</span>
+              </div>
+            </>
+          ) : (
+            <textarea placeholder={textos.opcional} value={valores[p.id] || ''} onChange={(e) => setValor(p.id, e.target.value)} />
+          )}
+        </div>
+      ))}
 
       <div className="stack">
         <button className="btn" type="button" disabled={enviando} onClick={enviar}>
-          {enviando ? 'Enviando…' : 'Enviar bitácora'}
+          {enviando ? textos.enviando : textos.enviarBitacora}
         </button>
       </div>
     </>
