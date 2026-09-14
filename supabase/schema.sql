@@ -1,72 +1,332 @@
--- Esquema para la sincronización del Visitante (Paso 5).
--- Cómo usarlo: Supabase → tu proyecto → SQL Editor → pegar todo → Run.
--- Se puede correr varias veces sin romper nada (los "if not exists" y
--- "or replace" lo permiten).
+-- ============================================================================
+-- Bitácora Regenerativa · Esquema v1 (Fase 1 de la propuesta)
+-- ============================================================================
+-- Cómo usarlo: Supabase → tu proyecto → SQL Editor → pegar TODO → Run.
+-- Después correr supabase/semilla.sql para cargar los datos de ejemplo.
 --
--- Nota sobre las fotos: por ahora NO se sincronizan (se quedan solo en el
--- celular). Subirlas necesita un bucket de Supabase Storage con sus propias
--- reglas, y lo dejamos para un paso aparte a propósito, para no mezclar dos
--- cosas grandes en un solo cambio.   
+-- ⚠️  Este esquema REEMPLAZA al de la versión anterior (Paso 5). Las tablas
+--     viejas `bitacoras` y `observaciones` tenían otra forma y se borran con
+--     sus datos de prueba. Si hay algo ahí que quieras conservar, expórtalo
+--     antes desde Table Editor.
+--
+-- Se puede volver a correr sin romper nada: todo usa "if not exists",
+-- "or replace" o "drop ... if exists" antes de crear.
+-- ============================================================================
+
+create extension if not exists pgcrypto;
+
+-- ----------------------------------------------------------------------------
+-- 0. Limpieza de la versión anterior
+-- ----------------------------------------------------------------------------
+drop table if exists observaciones cascade;
+drop table if exists bitacoras cascade;
+
+-- ----------------------------------------------------------------------------
+-- 1. Personas del equipo: perfiles, roles e invitaciones (RF-20)
+-- ----------------------------------------------------------------------------
+-- Cada usuario de Supabase Auth (correo + contraseña) tiene un perfil con su
+-- rol. La primera persona que se registre en un proyecto vacío queda como
+-- admin. Las siguientes solo reciben rol si el admin las invitó antes por
+-- correo desde el panel; si alguien se registra sin invitación, queda con el
+-- perfil inactivo y no puede ver nada.
+create table if not exists perfiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  correo text not null,
+  nombre text,
+  rol text not null check (rol in ('admin', 'guia')),
+  activo boolean not null default true,
+  creado_en timestamptz not null default now()
+);
+
+create table if not exists invitaciones (
+  correo text primary key,
+  rol text not null check (rol in ('admin', 'guia')),
+  nombre text,
+  creada_en timestamptz not null default now()
+);
+
+-- Funciones de ayuda para las reglas de acceso. "security definer" hace que
+-- corran con permisos del dueño y no del usuario, así pueden leer `perfiles`
+-- aunque el usuario mismo no tenga permiso de leer los perfiles de los demás.
+create or replace function rol_actual() returns text
+language sql stable security definer set search_path = public as $$
+  select rol from perfiles where id = auth.uid() and activo
+$$;
+
+create or replace function es_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select rol_actual()) = 'admin', false)
+$$;
+
+create or replace function es_equipo() returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select rol_actual()) in ('admin', 'guia'), false)
+$$;
+
+-- Al crearse un usuario en Auth se le crea su perfil automáticamente.
+create or replace function manejar_nuevo_usuario() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare
+  inv invitaciones%rowtype;
+  cuantos int;
+  nombre_meta text := new.raw_user_meta_data ->> 'nombre';
+begin
+  select count(*) into cuantos from perfiles;
+  select * into inv from invitaciones where lower(correo) = lower(new.email);
+
+  if cuantos = 0 then
+    insert into perfiles (id, correo, nombre, rol)
+    values (new.id, new.email, coalesce(nombre_meta, split_part(new.email, '@', 1)), 'admin');
+  elsif inv.correo is not null then
+    insert into perfiles (id, correo, nombre, rol)
+    values (new.id, new.email, coalesce(nombre_meta, inv.nombre, split_part(new.email, '@', 1)), inv.rol);
+    delete from invitaciones where correo = inv.correo;
+  else
+    insert into perfiles (id, correo, nombre, rol, activo)
+    values (new.id, new.email, coalesce(nombre_meta, split_part(new.email, '@', 1)), 'guia', false);
+  end if;
+  return new;
+end
+$$;
+
+drop trigger if exists al_crear_usuario on auth.users;
+create trigger al_crear_usuario
+  after insert on auth.users
+  for each row execute function manejar_nuevo_usuario();
+
+-- ----------------------------------------------------------------------------
+-- 2. Catálogo: indicadores, rutas, estaciones, preguntas (RF-13, RF-14, RF-06)
+-- ----------------------------------------------------------------------------
+create table if not exists indicadores (
+  id uuid primary key default gen_random_uuid(),
+  nombre_es text not null,
+  nombre_en text,
+  nombre_cientifico text,
+  pista_es text,                 -- dónde buscarlo ("bajo los árboles de cacao")
+  pista_en text,
+  explicacion_es text,           -- por qué importa
+  explicacion_en text,
+  categoria text,                -- suelo | biodiversidad | agua | planta | otro
+  tipo_medicion text not null check (tipo_medicion in ('conteo', 'si_no', 'escala', 'foto')),
+  emoji text,                    -- se usa mientras no haya foto
+  foto_path text,                -- ruta dentro del bucket "catalogo"
+  pide_foto boolean not null default true,
+  activo boolean not null default true,
+  orden int not null default 0,
+  creado_en timestamptz not null default now()
+);
+
+create table if not exists rutas (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null,
+  codigo text not null unique,   -- va en el QR: /r/<codigo>
+  descripcion text,
+  activa boolean not null default true,
+  creada_en timestamptz not null default now()
+);
+
+create table if not exists estaciones (
+  id uuid primary key default gen_random_uuid(),
+  ruta_id uuid not null references rutas (id) on delete cascade,
+  orden int not null default 0,
+  nombre_es text not null,
+  nombre_en text,
+  descripcion_es text,
+  descripcion_en text,
+  foto_path text,
+  activa boolean not null default true
+);
+create index if not exists estaciones_ruta_idx on estaciones (ruta_id, orden);
+
+create table if not exists estacion_indicadores (
+  estacion_id uuid not null references estaciones (id) on delete cascade,
+  indicador_id uuid not null references indicadores (id) on delete cascade,
+  orden int not null default 0,
+  primary key (estacion_id, indicador_id)
+);
+
+-- Preguntas de percepción al cierre. Son de la finca (no de una ruta).
+create table if not exists preguntas (
+  id uuid primary key default gen_random_uuid(),
+  orden int not null default 0,
+  texto_es text not null,
+  texto_en text,
+  tipo text not null default 'escala' check (tipo in ('escala', 'texto')),
+  minimo_es text, minimo_en text,   -- etiquetas de los extremos de la escala 1-5
+  maximo_es text, maximo_en text,
+  activa boolean not null default true
+);
+
+-- ----------------------------------------------------------------------------
+-- 3. Recorridos y bitácoras (RF-09 a RF-12, RF-16)
+-- ----------------------------------------------------------------------------
+create table if not exists recorridos (
+  id uuid primary key,
+  ruta_id uuid not null references rutas (id),
+  guia_id uuid references auth.users (id),
+  fecha date not null default current_date,
+  tamano_grupo int,
+  iniciado_en timestamptz not null default now(),
+  cerrado_en timestamptz,
+  estado text not null default 'abierto' check (estado in ('abierto', 'cerrado', 'validado')),
+  notas text,
+  creado_en timestamptz not null default now()
+);
+create index if not exists recorridos_ruta_fecha_idx on recorridos (ruta_id, fecha);
 
 create table if not exists bitacoras (
   id uuid primary key,
-  creada_en timestamptz not null,
-  enviada_en timestamptz not null,
+  ruta_id uuid references rutas (id),
+  recorrido_id uuid references recorridos (id) on delete set null,
+  origen text not null default 'visitante' check (origen in ('visitante', 'guia')),
+  idioma text not null default 'es',
   nombre_visitante text not null,
   pais text,
-  aprendizaje smallint,
+  correo text,
   comentario text,
-  -- cuándo la recibió Supabase (distinto de enviada_en, que es la hora del
-  -- celular; si el visitante estaba sin señal, esta fecha llega después).
-  recibida_en timestamptz not null default now()
+  creada_en timestamptz not null,    -- hora del celular al empezar
+  enviada_en timestamptz not null,   -- hora del celular al terminar
+  recibida_en timestamptz not null default now()   -- cuándo llegó a Supabase
 );
+create index if not exists bitacoras_ruta_creada_idx on bitacoras (ruta_id, creada_en);
+create index if not exists bitacoras_recorrido_idx on bitacoras (recorrido_id);
 
 create table if not exists observaciones (
-  -- mismo id que arma la app en el celular: "<bitacoraId>:<indicadorId>".
+  -- id armado en el celular: "<bitacoraId>:<estacionId>:<indicadorId>"
   id text primary key,
   bitacora_id uuid not null references bitacoras (id) on delete cascade,
-  indicador_id text not null,
+  estacion_id uuid references estaciones (id) on delete set null,
+  indicador_id uuid references indicadores (id) on delete set null,
   visto boolean not null,
-  cantidad int not null default 0
+  cantidad int not null default 0,
+  escala smallint,
+  foto_path text,                 -- ruta dentro del bucket "fotos"
+  creada_en timestamptz not null default now()
+);
+create index if not exists observaciones_bitacora_idx on observaciones (bitacora_id);
+
+create table if not exists respuestas (
+  id text primary key,            -- "<bitacoraId>:<preguntaId>"
+  bitacora_id uuid not null references bitacoras (id) on delete cascade,
+  pregunta_id uuid references preguntas (id) on delete set null,
+  valor_num smallint,
+  valor_texto text
+);
+create index if not exists respuestas_bitacora_idx on respuestas (bitacora_id);
+
+-- Lo que el guía decide sobre cada indicador de cada estación del recorrido.
+create table if not exists validaciones (
+  id uuid primary key default gen_random_uuid(),
+  recorrido_id uuid not null references recorridos (id) on delete cascade,
+  estacion_id uuid not null references estaciones (id) on delete cascade,
+  indicador_id uuid not null references indicadores (id) on delete cascade,
+  decision text not null check (decision in ('confirmada', 'ajustada', 'descartada')),
+  valor_final numeric,
+  nota text,
+  validado_por uuid references auth.users (id),
+  validado_en timestamptz not null default now(),
+  unique (recorrido_id, estacion_id, indicador_id)
 );
 
-create index if not exists observaciones_bitacora_id_idx on observaciones (bitacora_id);
+-- ----------------------------------------------------------------------------
+-- 4. Reglas de acceso (RLS)
+-- ----------------------------------------------------------------------------
+-- La anon key es pública. Sin estas reglas cualquiera podría leer o borrar
+-- todo. Resumen:
+--   · anónimo (visitante):  lee el catálogo, inserta bitácoras. Nada más.
+--   · guía:                 además lee bitácoras, crea/cierra sus recorridos
+--                           y guarda validaciones.
+--   · admin:                todo.
+alter table perfiles            enable row level security;
+alter table invitaciones        enable row level security;
+alter table indicadores         enable row level security;
+alter table rutas               enable row level security;
+alter table estaciones          enable row level security;
+alter table estacion_indicadores enable row level security;
+alter table preguntas           enable row level security;
+alter table recorridos          enable row level security;
+alter table bitacoras           enable row level security;
+alter table observaciones       enable row level security;
+alter table respuestas          enable row level security;
+alter table validaciones        enable row level security;
 
--- RLS (Row Level Security): la anon key es pública, así que sin estas
--- reglas cualquiera podría leer, cambiar o borrar todo con solo tener la
--- key. Dejamos que la app anónima SOLO pueda insertar (subir su bitácora)
--- — ni leer, ni cambiar, ni borrar nada. Leer los datos será trabajo del
--- panel Admin, con su propio usuario autenticado (Paso 7).
---
--- Ojo: a propósito NO hay política de "select" ni de "update".
--- - Sin "update": si existiera con `using (true)` (para poder reintentar
---   una subida sin error de "ya existe"), cualquiera con la anon key
---   podría sobrescribir la bitácora de otra persona, porque no guardamos
---   quién es "dueño" de cada fila.
--- - Sin "select": probamos primero resolver los reintentos con
---   "insertar y si ya existe no hacer nada" (ON CONFLICT DO NOTHING) del
---   lado de Postgres, pero resulta que ESO sí necesita poder leer la tabla
---   (Postgres tiene que poder comparar si hay conflicto). Así que el
---   reintento se resuelve en el código de la app (src/lib/sincronizar.js):
---   intenta un insert normal, y si Postgres responde "ya existe"
---   (unique_violation, 23505) lo toma como éxito en vez de error.
-alter table bitacoras enable row level security;
-alter table observaciones enable row level security;
+-- perfiles: cada quien ve el suyo; el admin ve y edita todos.
+drop policy if exists "perfil propio" on perfiles;
+create policy "perfil propio" on perfiles for select to authenticated using (id = auth.uid());
+drop policy if exists "admin ve perfiles" on perfiles;
+create policy "admin ve perfiles" on perfiles for select to authenticated using (es_admin());
+drop policy if exists "admin edita perfiles" on perfiles;
+create policy "admin edita perfiles" on perfiles for update to authenticated using (es_admin()) with check (es_admin());
 
--- Usamos la llave "anon" clásica (formato JWT) para conectar la app, así
--- que la regla apunta directo a ese rol: es el comportamiento bien probado
--- de Supabase, sin depender de cómo el sistema de llaves nuevo
--- (publishable/secret) resuelva el rol por dentro.
-drop policy if exists "anon puede insertar bitacoras" on bitacoras;
-drop policy if exists "insertar bitacoras" on bitacoras;
-create policy "insertar bitacoras"
-  on bitacoras for insert
-  to anon
-  with check (true);
+-- invitaciones: solo admin.
+drop policy if exists "admin invitaciones" on invitaciones;
+create policy "admin invitaciones" on invitaciones for all to authenticated using (es_admin()) with check (es_admin());
 
-drop policy if exists "anon puede insertar observaciones" on observaciones;
-drop policy if exists "insertar observaciones" on observaciones;
-create policy "insertar observaciones"
-  on observaciones for insert
-  to anon
-  with check (true);
+-- catálogo: todos leen, admin edita.
+do $$
+declare t text;
+begin
+  foreach t in array array['indicadores', 'rutas', 'estaciones', 'estacion_indicadores', 'preguntas'] loop
+    execute format('drop policy if exists "leer %s" on %I', t, t);
+    execute format('create policy "leer %s" on %I for select to anon, authenticated using (true)', t, t);
+    execute format('drop policy if exists "admin %s" on %I', t, t);
+    execute format('create policy "admin %s" on %I for all to authenticated using (es_admin()) with check (es_admin())', t, t);
+  end loop;
+end $$;
+
+-- recorridos: el equipo los ve; el guía crea y edita los suyos; admin todo.
+drop policy if exists "equipo ve recorridos" on recorridos;
+create policy "equipo ve recorridos" on recorridos for select to authenticated using (es_equipo());
+drop policy if exists "guia crea recorridos" on recorridos;
+create policy "guia crea recorridos" on recorridos for insert to authenticated with check (es_equipo() and guia_id = auth.uid());
+drop policy if exists "guia edita sus recorridos" on recorridos;
+create policy "guia edita sus recorridos" on recorridos for update to authenticated using (es_admin() or guia_id = auth.uid()) with check (es_admin() or guia_id = auth.uid());
+drop policy if exists "admin borra recorridos" on recorridos;
+create policy "admin borra recorridos" on recorridos for delete to authenticated using (es_admin());
+
+-- bitácoras y sus hijas: cualquiera inserta (así sube el visitante sin
+-- cuenta), el equipo lee, solo admin borra. A propósito NO hay update: sin
+-- dueño por fila, un update abierto dejaría que cualquiera con la anon key
+-- cambiara la bitácora de otra persona. Los reintentos de subida se
+-- resuelven en la app tratando el "ya existe" (23505) como éxito.
+do $$
+declare t text;
+begin
+  foreach t in array array['bitacoras', 'observaciones', 'respuestas'] loop
+    execute format('drop policy if exists "insertar %s" on %I', t, t);
+    execute format('create policy "insertar %s" on %I for insert to anon, authenticated with check (true)', t, t);
+    execute format('drop policy if exists "equipo lee %s" on %I', t, t);
+    execute format('create policy "equipo lee %s" on %I for select to authenticated using (es_equipo())', t, t);
+    execute format('drop policy if exists "admin borra %s" on %I', t, t);
+    execute format('create policy "admin borra %s" on %I for delete to authenticated using (es_admin())', t, t);
+  end loop;
+end $$;
+
+-- validaciones: el equipo completo.
+drop policy if exists "equipo validaciones" on validaciones;
+create policy "equipo validaciones" on validaciones for all to authenticated using (es_equipo()) with check (es_equipo());
+
+-- ----------------------------------------------------------------------------
+-- 5. Fotos (Storage)
+-- ----------------------------------------------------------------------------
+-- Dos buckets públicos para lectura (las fotos son de naturaleza, RNF-06):
+--   · fotos:    evidencia que suben los visitantes. Anónimo solo sube.
+--   · catalogo: fotos de indicadores y estaciones. Solo admin sube/borra.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('fotos', 'fotos', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = true, file_size_limit = 2097152;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('catalogo', 'catalogo', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set public = true, file_size_limit = 2097152;
+
+drop policy if exists "leer fotos" on storage.objects;
+create policy "leer fotos" on storage.objects for select to anon, authenticated using (bucket_id in ('fotos', 'catalogo'));
+drop policy if exists "subir fotos" on storage.objects;
+create policy "subir fotos" on storage.objects for insert to anon, authenticated with check (bucket_id = 'fotos');
+drop policy if exists "admin borra fotos" on storage.objects;
+create policy "admin borra fotos" on storage.objects for delete to authenticated using (bucket_id in ('fotos', 'catalogo') and es_admin());
+drop policy if exists "admin sube catalogo" on storage.objects;
+create policy "admin sube catalogo" on storage.objects for insert to authenticated with check (bucket_id = 'catalogo' and es_admin());
+drop policy if exists "admin cambia catalogo" on storage.objects;
+create policy "admin cambia catalogo" on storage.objects for update to authenticated using (bucket_id = 'catalogo' and es_admin()) with check (bucket_id = 'catalogo' and es_admin());
