@@ -45,6 +45,23 @@ create table if not exists invitaciones (
   creada_en timestamptz not null default now()
 );
 
+-- El único correo que puede quedar como admin SIN que nadie lo invite antes
+-- — normalmente quien está montando el proyecto. Antes se le daba admin a
+-- "quien se registre primero", pero eso es una carrera: cualquiera que
+-- encontrara la URL antes que el admin real se quedaba con el control de
+-- todo el sistema para siempre. Con esto, no importa el orden — solo este
+-- correo puede auto-asignarse admin.
+--
+-- ⚠️  Si estás montando este proyecto para OTRA finca (no la de prueba de
+--     Daniel), cambia el valor de abajo por el correo real del administrador
+--     antes de correr este script.
+create table if not exists ajustes (
+  clave text primary key,
+  valor text not null
+);
+insert into ajustes (clave, valor) values ('correo_admin_inicial', 'daniel.julio@12tree.ag')
+on conflict (clave) do update set valor = excluded.valor;
+
 -- Funciones de ayuda para las reglas de acceso. "security definer" hace que
 -- corran con permisos del dueño y no del usuario, así pueden leer `perfiles`
 -- aunque el usuario mismo no tenga permiso de leer los perfiles de los demás.
@@ -68,13 +85,13 @@ create or replace function manejar_nuevo_usuario() returns trigger
 language plpgsql security definer set search_path = public as $$
 declare
   inv invitaciones%rowtype;
-  cuantos int;
+  correo_admin text;
   nombre_meta text := new.raw_user_meta_data ->> 'nombre';
 begin
-  select count(*) into cuantos from perfiles;
+  select valor into correo_admin from ajustes where clave = 'correo_admin_inicial';
   select * into inv from invitaciones where lower(correo) = lower(new.email);
 
-  if cuantos = 0 then
+  if correo_admin is not null and lower(new.email) = lower(correo_admin) then
     insert into perfiles (id, correo, nombre, rol)
     values (new.id, new.email, coalesce(nombre_meta, split_part(new.email, '@', 1)), 'admin');
   elsif inv.correo is not null then
@@ -239,6 +256,7 @@ create table if not exists validaciones (
 --   · admin:                todo.
 alter table perfiles            enable row level security;
 alter table invitaciones        enable row level security;
+alter table ajustes             enable row level security;
 alter table indicadores         enable row level security;
 alter table rutas               enable row level security;
 alter table estaciones          enable row level security;
@@ -258,7 +276,13 @@ create policy "admin ve perfiles" on perfiles for select to authenticated using 
 drop policy if exists "admin edita perfiles" on perfiles;
 create policy "admin edita perfiles" on perfiles for update to authenticated using (es_admin()) with check (es_admin());
 
--- invitaciones: solo admin.
+-- ajustes: a propósito SIN ninguna política — ni admin, ni nadie, puede
+-- leerla ni escribirla por la API. Solo la función manejar_nuevo_usuario()
+-- la toca, porque es "security definer" (corre con permisos del dueño de la
+-- tabla, no del usuario que dispara el trigger) y eso salta el RLS. Si
+-- tuviera una política aunque fuera "solo admin puede leer/escribir", un
+-- admin comprometido (o el primer admin real, antes de tiempo) podría
+-- cambiar el correo y dárselo a otra persona — mejor que ni eso se pueda.
 drop policy if exists "admin invitaciones" on invitaciones;
 create policy "admin invitaciones" on invitaciones for all to authenticated using (es_admin()) with check (es_admin());
 

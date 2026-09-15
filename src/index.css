@@ -4,8 +4,13 @@
   --line: #D5D9CF; --cacao: #5B3A21; --cacao-soft: #E9DED3; --leaf: #2F6B3A; --leaf-deep: #1F4A28;
   --leaf-soft: #DCE9DD; --pollen: #C4900F; --pollen-soft: #F5E8C4; --sky: #DCE7EA;
   --shadow: 0 10px 30px rgba(36, 33, 28, .10);
+  --shadow-sm: 0 2px 8px rgba(36, 33, 28, .08);
+  --shadow-leaf: 0 10px 22px -8px rgba(47, 107, 58, .55);
   --display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
   --body: "Literata", Georgia, serif;
+  /* curvas de movimiento — nunca uses cubic-bezier sueltos, siempre estas */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -13,6 +18,8 @@
     --line: #3A3D34; --cacao: #C9976F; --cacao-soft: #3A2E23; --leaf: #7FBF86; --leaf-deep: #A9D9AE;
     --leaf-soft: #253A2A; --pollen: #E4B53A; --pollen-soft: #3D3416; --sky: #2A3538;
     --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+    --shadow-leaf: 0 10px 22px -8px rgba(127, 191, 134, .35);
   }
 }
 
@@ -23,6 +30,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
 :focus-visible { outline: 3px solid var(--pollen); outline-offset: 2px; }
+input, select, textarea { transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out); }
+input:focus-visible, select:focus-visible, textarea:focus-visible { border-color: var(--leaf); box-shadow: 0 0 0 3px var(--leaf-soft); outline: none; }
 
 h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: -.015em; line-height: 1.08; margin: 0 0 8px; text-wrap: balance; }
 h1 { font-size: 30px; }
@@ -31,15 +40,38 @@ p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
 .eyebrow { font-family: var(--display); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--leaf); margin: 0 0 4px; }
 .muted { color: var(--muted); font-size: 14px; }
 
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 18px; border-radius: 14px; border: 0; background: var(--leaf); color: #fff; font-family: var(--display); font-weight: 700; font-size: 17px; text-decoration: none; }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
-.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-.btn.soft { background: var(--leaf-soft); color: var(--leaf-deep); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 18px;
+  border-radius: 14px; border: 0; background: var(--leaf); color: #fff; font-family: var(--display); font-weight: 700;
+  font-size: 17px; text-decoration: none; box-shadow: var(--shadow-leaf);
+  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), opacity 150ms var(--ease-out);
+}
+.btn:active { transform: scale(0.97); box-shadow: none; }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; }
+.btn.soft { background: var(--leaf-soft); color: var(--leaf-deep); box-shadow: none; }
+@media (hover: hover) and (pointer: fine) {
+  .btn:not(:disabled):hover { transform: translateY(-1px); }
+  .btn.ghost:hover { background: var(--leaf-soft); border-color: var(--leaf-soft); }
+}
 
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; text-decoration: none; display: block; }
-.pill { display: inline-block; font-family: var(--display); font-weight: 700; font-size: 12px; border-radius: 999px; padding: 3px 10px; background: var(--leaf-soft); color: var(--leaf-deep); border: 0; cursor: pointer; text-decoration: none; }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px;
+  text-decoration: none; display: block; transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), border-color 150ms var(--ease-out);
+}
+a.card:active, button.card:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) {
+  a.card:hover, button.card:hover { box-shadow: var(--shadow-sm); border-color: var(--leaf); }
+}
+
+.pill {
+  display: inline-block; font-family: var(--display); font-weight: 700; font-size: 12px; border-radius: 999px;
+  padding: 3px 10px; background: var(--leaf-soft); color: var(--leaf-deep); border: 0; cursor: pointer; text-decoration: none;
+  transition: transform 120ms var(--ease-out), background-color 150ms var(--ease-out), color 150ms var(--ease-out);
+}
 .pill.warn { background: var(--pollen-soft); color: var(--pollen); }
 .pill.off { background: var(--line); color: var(--muted); }
+button.pill:active { transform: scale(0.94); }
 
 /* tablas del panel de la finca y de la app del guía */
 .tabla-envoltura { overflow-x: auto; margin: 0 0 4px; border: 1px solid var(--line); border-radius: 14px; }
@@ -47,9 +79,37 @@ p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
 .tabla th, .tabla td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
 .tabla th { font-family: var(--display); font-weight: 700; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
 .tabla tr:last-child td { border-bottom: 0; }
+.tabla tbody tr { transition: background-color 150ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  .tabla tbody tr:hover { background-color: var(--leaf-soft); }
+}
 .fila-validacion { display: flex; gap: 4px; }
 
 /* pestañas del panel de la finca */
 .pestanas { display: flex; gap: 6px; overflow-x: auto; margin: 4px 0 20px; padding-bottom: 2px; }
-.pestanas a { flex: none; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); font-family: var(--display); font-weight: 700; font-size: 13px; text-decoration: none; color: var(--muted); }
+.pestanas a {
+  flex: none; padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--line); font-family: var(--display);
+  font-weight: 700; font-size: 13px; text-decoration: none; color: var(--muted);
+  transition: background-color 180ms var(--ease-out), color 180ms var(--ease-out), border-color 180ms var(--ease-out);
+}
 .pestanas a.activa { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* ---- movimiento compartido ---- */
+/* Cada paso de un flujo (bienvenida → estaciones → indicador → …) entra así
+   en vez de aparecer de golpe — evita el salto brusco entre pantallas.
+   Se aplica envolviendo el contenido de cada paso en <div class="paso" key=…>. */
+@keyframes entrar-paso { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* flex/flex-direction: para que .stack (margin-top:auto) siga empujando los
+   botones al fondo de la pantalla como cuando era hijo directo de .screen */
+.paso { display: flex; flex-direction: column; flex: 1; animation: entrar-paso 260ms var(--ease-out) both; }
+
+/* Algo que aparece dentro de una pantalla ya visible (una foto recién
+   tomada, un mensaje de error) — más corto que el cambio de pantalla. */
+@keyframes aparecer { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+.entra { animation: aparecer 200ms var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .paso, .entra, .preview .thumb, .hero, .photo img { animation: none; }
+  .btn, .card, .pill, .pestanas a, a.card, button.card { transition-duration: 1ms; }
+  .btn:not(:disabled):hover, a.card:hover, button.card:hover { transform: none; }
+}

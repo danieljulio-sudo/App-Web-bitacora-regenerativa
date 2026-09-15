@@ -14,7 +14,7 @@ export default function Estaciones({ bitacora, estaciones, observaciones, idioma
       <h2>{bitacora.nombreVisitante ? `${textos.tuBitacora}, ${bitacora.nombreVisitante}` : textos.tuBitacora}</h2>
 
       <div className="progress">
-        <div className="bar"><i style={{ width: `${porcentaje}%` }} /></div>
+        <div className="bar"><i style={{ transform: `scaleX(${porcentaje / 100})` }} /></div>
         <span>{totalRespondidos} / {totalIndicadores}</span>
       </div>
 

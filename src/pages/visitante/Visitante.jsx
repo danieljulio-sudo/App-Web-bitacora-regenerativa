@@ -110,31 +110,37 @@ export default function Visitante() {
 
   if (etapa === 'sin-ruta') {
     return (
-      <>
+      <div className="paso">
         <p className="eyebrow">Bitácora Regenerativa</p>
         <h1>{textos.sinRutaTitulo}</h1>
         <p>{textos.sinRutaTexto}</p>
         <p className="muted">
           <Link to="/r/ruta-cacao">/r/ruta-cacao →</Link> (ruta de ejemplo, para probar)
         </p>
-      </>
+      </div>
     )
   }
 
   if (etapa === 'no-encontrada') {
     return (
-      <>
+      <div className="paso">
         <p className="eyebrow">Bitácora Regenerativa</p>
         <h1>{textos.rutaNoEncontrada}</h1>
-      </>
+      </div>
     )
   }
 
   if (etapa === 'cargando' || !ruta) return <p className="muted">{textos.cargando}</p>
 
+  // Cada paso del recorrido entra con la misma animación sutil (ver .paso en
+  // index.css) — evita el salto brusco entre pantallas sin distraer del
+  // contenido. La key incluye la estación/indicador actual para que abrir
+  // una señal distinta también dispare la entrada, no solo cambiar de etapa.
+  let pantalla = null
+
   switch (etapa) {
     case 'bienvenida':
-      return (
+      pantalla = (
         <Bienvenida
           ruta={ruta.ruta}
           indicadores={todosLosIndicadores(ruta.estaciones)}
@@ -144,9 +150,10 @@ export default function Visitante() {
           onIniciar={iniciar}
         />
       )
+      break
 
     case 'estaciones':
-      return (
+      pantalla = (
         <Estaciones
           bitacora={bitacora}
           estaciones={ruta.estaciones}
@@ -157,10 +164,11 @@ export default function Visitante() {
           onTerminar={() => setEtapa('cierre')}
         />
       )
+      break
 
     case 'estacion': {
       const estacion = ruta.estaciones.find((e) => e.id === estacionActualId)
-      return (
+      pantalla = (
         <Estacion
           estacion={estacion}
           observaciones={observaciones ?? []}
@@ -170,15 +178,15 @@ export default function Visitante() {
           onVolver={volverAEstaciones}
         />
       )
+      break
     }
 
     case 'indicador': {
       const estacion = ruta.estaciones.find((e) => e.id === estacionActualId)
       const indicador = estacion.indicadores.find((i) => i.id === indicadorActualId)
       const observacion = (observaciones ?? []).find((o) => o.indicadorId === indicadorActualId && o.estacionId === estacionActualId)
-      return (
+      pantalla = (
         <Indicador
-          key={indicador.id}
           indicador={indicador}
           observacion={observacion}
           estacionId={estacion.id}
@@ -188,15 +196,25 @@ export default function Visitante() {
           onVolver={volverAEstacion}
         />
       )
+      break
     }
 
     case 'cierre':
-      return <Cierre preguntas={ruta.preguntas} idioma={idioma} textos={textos} onVolver={() => setEtapa('estaciones')} onEnviar={enviar} />
+      pantalla = <Cierre preguntas={ruta.preguntas} idioma={idioma} textos={textos} onVolver={() => setEtapa('estaciones')} onEnviar={enviar} />
+      break
 
     case 'gracias':
-      return <Gracias resumen={resumen} textos={textos} onNueva={nuevaBitacora} />
+      pantalla = <Gracias resumen={resumen} textos={textos} onNueva={nuevaBitacora} />
+      break
 
     default:
       return null
   }
+
+  const clavePaso = `${etapa}:${estacionActualId ?? ''}:${indicadorActualId ?? ''}`
+  return (
+    <div className="paso" key={clavePaso}>
+      {pantalla}
+    </div>
+  )
 }

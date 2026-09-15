@@ -7,8 +7,10 @@
 .idiomas button {
   padding: 5px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface);
   font-family: var(--display); font-weight: 700; font-size: 12px; color: var(--muted);
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
 }
 .idiomas button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.idiomas button:active { transform: scale(0.93); }
 
 label { display: block; font-family: var(--display); font-weight: 700; font-size: 14px; margin: 14px 0 6px; }
 input[type='text'], select, textarea {
@@ -18,17 +20,30 @@ textarea { min-height: 84px; resize: vertical; }
 
 .stack { display: grid; gap: 10px; margin-top: auto; padding-top: 18px; }
 
-/* franja de íconos en la bienvenida */
+/* franja de íconos en la bienvenida — degradado suave en vez de un color
+   plano, aparecen con un pequeño stagger (30-80ms entre uno y el siguiente
+   es el rango recomendado; 40ms se siente vivo sin llamar la atención). */
 .preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
 .preview .thumb {
-  aspect-ratio: 1; border-radius: 12px; background: var(--leaf-soft); border: 1px solid var(--line);
+  aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line);
+  background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
   display: flex; align-items: center; justify-content: center; font-size: 30px;
+  animation: aparecer 320ms var(--ease-out) both;
 }
+.preview .thumb:nth-child(1) { animation-delay: 0ms; }
+.preview .thumb:nth-child(2) { animation-delay: 40ms; }
+.preview .thumb:nth-child(3) { animation-delay: 80ms; }
+.preview .thumb:nth-child(4) { animation-delay: 120ms; }
+.preview .thumb:nth-child(n+5) { animation-delay: 160ms; }
 
-/* barra de progreso del recorrido */
+/* barra de progreso del recorrido — transform en vez de width: no dispara
+   layout/reflow en cada indicador que se marca, solo compositing. */
 .progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
 .progress .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
-.progress .bar i { display: block; height: 100%; background: var(--leaf); transition: width .3s ease; }
+.progress .bar i {
+  display: block; height: 100%; width: 100%; background: var(--leaf); transform-origin: left;
+  transform: scaleX(0); transition: transform 320ms var(--ease-in-out);
+}
 .progress span { font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* tarjetas de indicadores */
@@ -36,8 +51,16 @@ textarea { min-height: 84px; resize: vertical; }
 .tarjeta {
   display: grid; grid-template-columns: 96px 1fr; gap: 0; background: var(--surface); border: 1px solid var(--line);
   border-radius: 18px; overflow: hidden; text-align: left; padding: 0; position: relative;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), border-color 150ms var(--ease-out);
 }
-.tarjeta-img { aspect-ratio: 1; background: var(--leaf-soft); display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.tarjeta:active { transform: scale(0.98); }
+@media (hover: hover) and (pointer: fine) {
+  .tarjeta:hover { box-shadow: var(--shadow-sm); border-color: var(--leaf); }
+}
+.tarjeta-img {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 40px;
+  background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
+}
 .tarjeta-body { padding: 12px 14px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
 .tarjeta-nombre { font-family: var(--display); font-weight: 700; font-size: 16px; line-height: 1.15; }
 .tarjeta-pista { font-size: 13px; color: var(--muted); line-height: 1.35; }
@@ -51,28 +74,43 @@ textarea { min-height: 84px; resize: vertical; }
 /* pantalla de detalle */
 .back { background: transparent; border: 0; padding: 4px 0; color: var(--muted); font-family: var(--display); font-weight: 700; font-size: 14px; text-align: left; }
 .hero {
-  border-radius: 20px; background: var(--leaf-soft); aspect-ratio: 4 / 3; margin: 4px 0 12px;
-  display: flex; align-items: center; justify-content: center; font-size: 72px;
+  border-radius: 20px; aspect-ratio: 4 / 3; margin: 4px 0 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 72px; background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
+  animation: aparecer 260ms var(--ease-out) both;
 }
 .why { background: var(--pollen-soft); border-left: 3px solid var(--pollen); padding: 10px 14px; border-radius: 0 12px 12px 0; font-size: 15px; margin: 0 0 16px; color: var(--ink); }
 .q { font-family: var(--display); font-weight: 700; font-size: 16px; margin: 16px 0 8px; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.seg button { padding: 13px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-weight: 700; font-size: 16px; }
+.seg button {
+  padding: 13px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display);
+  font-weight: 700; font-size: 16px;
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
+}
 .seg button[aria-pressed='true'] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.seg button:active, .stars button:active, .counter button:active { transform: scale(0.94); }
 
 .counter { display: grid; grid-template-columns: 56px 1fr 56px; gap: 8px; align-items: center; }
-.counter button { height: 56px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-size: 26px; font-weight: 700; }
+.counter button {
+  height: 56px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display);
+  font-size: 26px; font-weight: 700; transition: transform 120ms var(--ease-out), background-color 150ms var(--ease-out);
+}
 .counter output { text-align: center; font-family: var(--display); font-weight: 700; font-size: 40px; font-variant-numeric: tabular-nums; }
 
 .photo { display: grid; gap: 8px; }
-.photo img { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; }
+.photo img { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; animation: aparecer 220ms var(--ease-out) both; }
 .file { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
 
 /* estrellas de la pantalla de cierre */
 .stars { display: flex; gap: 6px; }
-.stars button { flex: 1; aspect-ratio: 1; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display); font-weight: 700; font-size: 18px; }
+.stars button {
+  flex: 1; aspect-ratio: 1; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); font-family: var(--display);
+  font-weight: 700; font-size: 18px;
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out), border-color 150ms var(--ease-out), transform 120ms var(--ease-out);
+}
 .stars button[aria-pressed='true'] { background: var(--pollen); border-color: var(--pollen); color: #24211C; }
 .scale-hint { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
 
-/* número grande de la pantalla de gracias */
+/* número grande de la pantalla de gracias — la única pantalla "de una sola
+   vez por recorrido", así que es donde el presupuesto de delight vive
+   (ver el conteo animado en Gracias.jsx). */
 .big { font-family: var(--display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -.03em; color: var(--leaf); margin: 6px 0 2px; font-variant-numeric: tabular-nums; }

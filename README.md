@@ -22,4 +22,12 @@ Copiar `.env.example` como `.env` y pegar la URL y la anon key del proyecto en S
 
 ## Base de datos en Supabase
 
-Las tablas y las reglas de acceso (RLS) viven en [`supabase/schema.sql`](supabase/schema.sql), versionadas junto al código. Para aplicarlas: Supabase → tu proyecto → **SQL Editor** → pegar el contenido del archivo → **Run**. Se puede correr de nuevo sin problema si cambia algo (usa `if not exists` / `drop policy if exists`).
+Las tablas y las reglas de acceso (RLS) viven en [`supabase/schema.sql`](supabase/schema.sql), versionadas junto al código. Para aplicarlas, en orden:
+
+1. **Supabase → tu proyecto → SQL Editor → pegar `schema.sql` → Run.** Antes de correrlo, edita la línea que dice `correo_admin_inicial` y pon ahí el correo real de quien va a administrar esta finca — es el único correo que puede auto-asignarse administrador al registrarse (ver "Seguridad" abajo). Se puede volver a correr sin problema si cambia algo (usa `if not exists` / `drop policy if exists`).
+2. **`semilla.sql`** (opcional, solo para probar): ruta y catálogo de ejemplo.
+3. Entra a `/admin`, "Todavía no tengo cuenta", regístrate con ese mismo correo — quedas admin automático. Desde ahí invitas a los guías y cargas el catálogo real.
+
+### Seguridad: solo un correo puede ser el primer admin
+
+A propósito NO es "quien se registre primero" — eso sería una carrera: cualquiera que encontrara la URL antes que el admin real se quedaría con el control del sistema para siempre. En vez de eso, solo el correo guardado en la tabla `ajustes` (columna `correo_admin_inicial`) puede auto-asignarse admin, sin importar cuándo se registre. Esa tabla no se puede leer ni escribir por la API (ni siquiera un admin autenticado) — solo se cambia desde el SQL Editor.
