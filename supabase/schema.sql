@@ -328,9 +328,19 @@ begin
   end loop;
 end $$;
 
--- validaciones: el equipo completo.
+-- validaciones: el equipo completo las VE, pero solo el guía dueño del
+-- recorrido (o un admin) puede confirmar/ajustar/descartar — antes
+-- "equipo validaciones" dejaba a cualquier guía tocar las validaciones de
+-- un recorrido ajeno, porque es_equipo() solo mira el rol, no de quién es
+-- el recorrido (a diferencia de "guia edita sus recorridos" arriba, que sí
+-- lo hace).
 drop policy if exists "equipo validaciones" on validaciones;
-create policy "equipo validaciones" on validaciones for all to authenticated using (es_equipo()) with check (es_equipo());
+drop policy if exists "equipo ve validaciones" on validaciones;
+create policy "equipo ve validaciones" on validaciones for select to authenticated using (es_equipo());
+drop policy if exists "guia valida sus recorridos" on validaciones;
+create policy "guia valida sus recorridos" on validaciones for all to authenticated
+  using (es_admin() or exists (select 1 from recorridos r where r.id = recorrido_id and r.guia_id = auth.uid()))
+  with check (es_admin() or exists (select 1 from recorridos r where r.id = recorrido_id and r.guia_id = auth.uid()));
 
 -- ----------------------------------------------------------------------------
 -- 5. Fotos (Storage)

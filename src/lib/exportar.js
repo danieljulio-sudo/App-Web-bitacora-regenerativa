@@ -1,5 +1,17 @@
 import { supabase } from './supabase.js'
 
+// El nombre, país, correo y las respuestas de texto libre los escribe
+// cualquier visitante sin cuenta (RLS de bitacoras/respuestas es "inserta
+// lo que sea"). Si alguien pone algo como '=HYPERLINK("http://mal.io")'
+// como nombre, y luego el guía abre el Excel exportado, algunos programas
+// de hojas de cálculo lo ejecutan como fórmula en vez de mostrarlo como
+// texto (inyección de fórmulas / CWE-1236) — sobre todo si el archivo se
+// vuelve a abrir como CSV. Anteponer una comilla simple fuerza a texto.
+function celdaSegura(valor) {
+  if (typeof valor !== 'string') return valor
+  return /^[=+\-@\t\r]/.test(valor) ? `'${valor}` : valor
+}
+
 // RF-17: exportar observaciones validadas a Excel. Trabaja sobre un
 // recorrido ya cerrado — junta bitácoras, observaciones y respuestas, y las
 // vuelve tres hojas de un mismo archivo.
@@ -32,12 +44,12 @@ export async function exportarRecorridoExcel(recorrido, ruta) {
   const nombreIndicador = Object.fromEntries((indicadores ?? []).map((i) => [i.id, i.nombre_es]))
   const nombreEstacion = Object.fromEntries((estaciones ?? []).map((e) => [e.id, e.nombre_es]))
   const textoPregunta = Object.fromEntries((preguntas ?? []).map((p) => [p.id, p.texto_es]))
-  const nombreVisitantePorBitacora = Object.fromEntries((bitacoras ?? []).map((b) => [b.id, b.nombre_visitante]))
+  const nombreVisitantePorBitacora = Object.fromEntries((bitacoras ?? []).map((b) => [b.id, celdaSegura(b.nombre_visitante)]))
 
   const hojaBitacoras = (bitacoras ?? []).map((b) => ({
-    Visitante: b.nombre_visitante,
-    País: b.pais ?? '',
-    Correo: b.correo ?? '',
+    Visitante: celdaSegura(b.nombre_visitante),
+    País: celdaSegura(b.pais ?? ''),
+    Correo: celdaSegura(b.correo ?? ''),
     Origen: b.origen,
     'Fecha de inicio': b.creada_en,
     'Fecha de envío': b.enviada_en,
@@ -57,7 +69,7 @@ export async function exportarRecorridoExcel(recorrido, ruta) {
     Visitante: nombreVisitantePorBitacora[r.bitacora_id] ?? '',
     Pregunta: textoPregunta[r.pregunta_id] ?? '',
     'Valor (escala)': r.valor_num ?? '',
-    'Valor (texto)': r.valor_texto ?? '',
+    'Valor (texto)': celdaSegura(r.valor_texto ?? ''),
   }))
 
   const libro = XLSX.utils.book_new()
