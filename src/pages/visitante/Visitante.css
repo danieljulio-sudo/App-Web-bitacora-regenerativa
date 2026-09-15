@@ -66,6 +66,7 @@ textarea { min-height: 84px; resize: vertical; }
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 40px;
   background: radial-gradient(circle at 30% 25%, var(--surface), var(--acento-local, var(--leaf-soft)));
 }
+.tarjeta-img img { width: 100%; height: 100%; object-fit: cover; }
 .tarjeta-body { padding: 12px 14px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
 .tarjeta-nombre { font-family: var(--display); font-weight: 700; font-size: 16px; line-height: 1.15; }
 .tarjeta-pista { font-size: 13px; color: var(--muted); line-height: 1.35; }
@@ -109,8 +110,9 @@ textarea { min-height: 84px; resize: vertical; }
 .hero {
   border-radius: 20px; aspect-ratio: 4 / 3; margin: 4px 0 12px; display: flex; align-items: center; justify-content: center;
   font-size: 72px; background: radial-gradient(circle at 30% 25%, var(--surface), var(--acento-local, var(--leaf-soft)));
-  animation: aparecer 260ms var(--ease-out) both;
+  animation: aparecer 260ms var(--ease-out) both; overflow: hidden;
 }
+.hero img { width: 100%; height: 100%; object-fit: cover; }
 .why { background: var(--pollen-soft); border-left: 3px solid var(--pollen); padding: 10px 14px; border-radius: 0 12px 12px 0; font-size: 15px; margin: 0 0 16px; color: var(--ink); }
 .q { font-family: var(--display); font-weight: 700; font-size: 16px; margin: 16px 0 8px; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }

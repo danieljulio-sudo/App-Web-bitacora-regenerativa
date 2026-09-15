@@ -3,6 +3,7 @@ import { guardarObservacion, guardarFoto, idObservacion, obtenerFoto } from '../
 import { comprimirFoto } from '../../lib/foto.js'
 import { campo } from '../../i18n/textos.js'
 import { colorPorCategoria } from '../../lib/colorPorCategoria.js'
+import { urlPublica } from '../../lib/supabase.js'
 
 // Pantalla de un solo indicador: sí/no (o solo foto), cuántos o qué tan
 // marcado (según el tipo de medición — RF-04) y foto opcional u obligatoria.
@@ -54,7 +55,9 @@ export default function Indicador({ indicador, observacion, estacionId, bitacora
     <>
       <button className="back" type="button" onClick={onVolver}>{textos.volverALista}</button>
 
-      <div className="hero" style={{ '--acento-local': colorPorCategoria(indicador.categoria) }} aria-hidden="true">{indicador.emoji}</div>
+      <div className="hero" style={{ '--acento-local': colorPorCategoria(indicador.categoria) }} aria-hidden="true">
+        {indicador.fotoPath ? <img src={urlPublica('catalogo', indicador.fotoPath)} alt="" /> : indicador.emoji}
+      </div>
       <h2>{nombre}</h2>
       {indicador.nombreCientifico && <p className="muted"><i>{indicador.nombreCientifico}</i></p>}
       {pista && !explicacion && <p className="muted">{pista}</p>}

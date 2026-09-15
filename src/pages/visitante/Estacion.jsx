@@ -3,6 +3,7 @@ import { campo } from '../../i18n/textos.js'
 import { colorPorCategoria } from '../../lib/colorPorCategoria.js'
 import { crearHallazgo, eliminarHallazgo, guardarFoto } from '../../lib/bitacoraVisitante.js'
 import { comprimirFoto } from '../../lib/foto.js'
+import { urlPublica } from '../../lib/supabase.js'
 
 // Indicadores de una sola estación (RF-03/RF-04). Misma idea que
 // Estaciones.jsx pero un nivel más adentro. Al final se agrega "¿viste algo
@@ -59,7 +60,9 @@ export default function Estacion({ estacion, observaciones, bitacoraId, idioma, 
           const o = observaciones.find((x) => x.indicadorId === i.id)
           return (
             <button key={i.id} className="tarjeta" type="button" onClick={() => onAbrir(i.id)}>
-              <div className="tarjeta-img" style={{ '--acento-local': colorPorCategoria(i.categoria) }} aria-hidden="true">{i.emoji}</div>
+              <div className="tarjeta-img" style={{ '--acento-local': colorPorCategoria(i.categoria) }} aria-hidden="true">
+                {i.fotoPath ? <img src={urlPublica('catalogo', i.fotoPath)} alt="" /> : i.emoji}
+              </div>
               {o?.tieneFoto && <span className="photo-dot">📷</span>}
               <div className="tarjeta-body">
                 <div className="tarjeta-nombre">{campo(i, 'nombre', idioma)}</div>
