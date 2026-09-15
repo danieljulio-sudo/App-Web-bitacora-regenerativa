@@ -1,0 +1,246 @@
+<title>Cómo usar Bitácora Regenerativa</title>
+<style>
+  :root {
+    --paper: #EEF0EA; --surface: #FAFBF8; --ink: #24211C; --ink-soft: #4A473F; --muted: #6E7266;
+    --line: #D5D9CF; --leaf: #2F6B3A; --leaf-deep: #1F4A28; --leaf-soft: #DCE9DD;
+    --cacao: #5B3A21; --cacao-soft: #E9DED3; --pollen: #A9760A; --pollen-soft: #F5E8C4; --sky: #DCE7EA;
+    --shadow: 0 10px 30px rgba(36, 33, 28, .08);
+    --shadow-sm: 0 2px 8px rgba(36, 33, 28, .06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #171814; --surface: #22241E; --ink: #ECEAE1; --ink-soft: #C9C6BA; --muted: #969A8C;
+      --line: #3A3D34; --leaf: #7FBF86; --leaf-deep: #A9D9AE; --leaf-soft: #253A2A;
+      --cacao: #C9976F; --cacao-soft: #3A2E23; --pollen: #E4B53A; --pollen-soft: #3D3416; --sky: #2A3538;
+      --shadow: 0 10px 30px rgba(0, 0, 0, .35); --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171814; --surface: #22241E; --ink: #ECEAE1; --ink-soft: #C9C6BA; --muted: #969A8C;
+    --line: #3A3D34; --leaf: #7FBF86; --leaf-deep: #A9D9AE; --leaf-soft: #253A2A;
+    --cacao: #C9976F; --cacao-soft: #3A2E23; --pollen: #E4B53A; --pollen-soft: #3D3416; --sky: #2A3538;
+    --shadow: 0 10px 30px rgba(0, 0, 0, .35); --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
+    color-scheme: dark;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap');
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Literata", ui-serif, Georgia, serif; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .eyebrow, .navpill, .step-n {
+    font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+
+  .wrap { max-width: 660px; margin: 0 auto; padding-inline: 20px; }
+
+  /* --- cabecera + nav de anclas, fija arriba para saltar entre roles --- */
+  header.top {
+    position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding-block: 14px;
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--leaf); flex-shrink: 0; }
+  nav.roles { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+  nav.roles::-webkit-scrollbar { display: none; }
+  .navpill {
+    flex-shrink: 0; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface);
+    color: var(--ink-soft); text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap;
+    transition: border-color .15s ease-out, color .15s ease-out, background-color .15s ease-out;
+  }
+  .navpill[data-accent="visitante"]:hover { border-color: var(--leaf); color: var(--leaf-deep); }
+  .navpill[data-accent="guia"]:hover { border-color: var(--cacao); color: var(--cacao); }
+  .navpill[data-accent="panel"]:hover { border-color: var(--pollen); color: var(--pollen); }
+
+  main { padding-block: 28px 60px; }
+
+  .intro { padding-block: 8px 32px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+  .intro h1 { font-size: clamp(1.7rem, 5vw, 2.2rem); font-weight: 800; letter-spacing: -.01em; }
+  .intro p { color: var(--ink-soft); font-size: 1.02rem; max-width: 56ch; margin-top: 10px; }
+  .intro .tag {
+    display: inline-flex; align-items: center; gap: 6px; font-family: "Bricolage Grotesque", sans-serif;
+    font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--leaf-deep);
+    background: var(--leaf-soft); border-radius: 999px; padding: 5px 12px; margin-bottom: 14px;
+  }
+
+  section.role { padding-block: 8px 52px; scroll-margin-top: 96px; }
+  section.role + section.role { border-top: 1px solid var(--line); }
+  .role-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+  .role-head .eyebrow { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; }
+  section.role[data-accent="visitante"] .eyebrow { color: var(--leaf-deep); }
+  section.role[data-accent="guia"] .eyebrow { color: var(--cacao); }
+  section.role[data-accent="panel"] .eyebrow { color: var(--pollen); }
+  .role-head h2 { font-size: 1.55rem; font-weight: 800; }
+  .role-sub { color: var(--muted); font-size: .95rem; margin-top: 2px; margin-bottom: 22px; max-width: 60ch; }
+
+  .steps { display: flex; flex-direction: column; gap: 2px; }
+  .step {
+    display: grid; grid-template-columns: 34px 1fr; gap: 14px; padding-block: 15px;
+    border-top: 1px solid var(--line);
+  }
+  .step:first-child { border-top: none; }
+  .step-n {
+    width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--surface);
+  }
+  section.role[data-accent="visitante"] .step-n { background: var(--leaf); }
+  section.role[data-accent="guia"] .step-n { background: var(--cacao); }
+  section.role[data-accent="panel"] .step-n { background: var(--pollen); }
+  .step p { margin: 0; }
+  .step .step-title { font-weight: 600; color: var(--ink); }
+  .step .step-body { color: var(--ink-soft); font-size: .96rem; margin-top: 3px; }
+  .step code {
+    font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: .82em; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 5px; padding: .1em .4em;
+  }
+
+  .callout {
+    display: flex; gap: 10px; margin-top: 18px; padding: 13px 15px; border-radius: 12px;
+    background: var(--pollen-soft); border-left: 3px solid var(--pollen); font-size: .92rem; color: var(--ink);
+  }
+  .callout b { color: var(--ink); }
+
+  .panel-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+  .panel-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel-card .step-title { font-weight: 700; font-family: "Bricolage Grotesque", sans-serif; font-size: .92rem; color: var(--pollen); }
+  .panel-card p { margin: 4px 0 0; color: var(--ink-soft); font-size: .9rem; }
+
+  footer.faq { border-top: 1px solid var(--line); padding-top: 32px; }
+  footer.faq h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; }
+  .faq-item { padding-block: 13px; border-top: 1px solid var(--line); }
+  .faq-item:first-child { border-top: none; }
+  .faq-item .q { font-weight: 600; margin-bottom: 3px; }
+  .faq-item .a { color: var(--ink-soft); font-size: .94rem; margin: 0; }
+
+  @media (min-width: 640px) {
+    .step { grid-template-columns: 40px 1fr; }
+    .step-n { width: 34px; height: 34px; font-size: .92rem; }
+  }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><span class="dot" aria-hidden="true"></span> Bitácora Regenerativa</div>
+    <nav class="roles" aria-label="Ir a una sección">
+      <a class="navpill" data-accent="visitante" href="#visitante">🥾 Visitante</a>
+      <a class="navpill" data-accent="guia" href="#guia">🧭 Guía</a>
+      <a class="navpill" data-accent="panel" href="#panel">🗂️ Panel de la finca</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <span class="tag">Guía de uso</span>
+    <h1>Cómo se usa la Bitácora, paso a paso</h1>
+    <p>Tres formas de entrar a la misma app, según quién eres: la persona que camina el recorrido, quien lo guía, o quien administra la finca. Cada una ve solo lo que le toca.</p>
+  </div>
+
+  <section class="role" id="visitante" data-accent="visitante">
+    <div class="role-head">
+      <span class="eyebrow">Sin cuenta</span>
+      <h2>Visitante</h2>
+    </div>
+    <p class="role-sub">Quien camina el sendero y registra lo que va viendo. No necesita crear cuenta ni instalar nada de una tienda de apps.</p>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-n">1</span>
+        <div><p class="step-title">Escanea el QR del sendero</p><p class="step-body">Está al inicio del recorrido. Abre la cámara del celular y apúntale — no hace falta ninguna app especial para leerlo.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">2</span>
+        <div><p class="step-title">Elige tu idioma y preséntate</p><p class="step-body">Español o inglés, tu nombre, de dónde vienes y, si quieres, tu correo (para mandarte tu bitácora — es opcional).</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">3</span>
+        <div><p class="step-title">Entra a cada estación del camino</p><p class="step-body">Verás la lista de estaciones en orden. En cada una, toca las señales que te pide buscar: cuenta cuántas hay, marca si la viste o no, califícala del 1 al 5, o tómale una foto — según lo que pida esa señal.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">4</span>
+        <div><p class="step-title">¿Viste algo que no está en la lista?</p><p class="step-body">Al final de cada estación hay un botón para eso: describe qué era y, si puedes, tómale una foto. El equipo de la finca lo revisa después.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">5</span>
+        <div><p class="step-title">Responde unas preguntas cortas</p><p class="step-body">Al terminar el camino, un par de preguntas sobre cómo te pareció el recorrido.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">6</span>
+        <div><p class="step-title">Listo</p><p class="step-body">Verás cuántas señales de regeneración registraste. Tu bitácora ya quedó guardada en el celular.</p></div>
+      </div>
+    </div>
+
+    <div class="callout">🌱 <span><b>Funciona sin señal.</b> Todo lo que registras se guarda en tu celular al momento — si no hay cobertura en el sendero, no se pierde nada. En cuanto el celular vuelva a tener señal, se sube solo.</span></div>
+  </section>
+
+  <section class="role" id="guia" data-accent="guia">
+    <div class="role-head">
+      <span class="eyebrow">Con cuenta</span>
+      <h2>Guía</h2>
+    </div>
+    <p class="role-sub">Quien lleva al grupo por el sendero y valida lo que registraron. Necesita que el administrador de la finca lo invite primero.</p>
+
+    <div class="callout" style="margin-top:0;margin-bottom:22px;background:var(--cacao-soft);border-left-color:var(--cacao);">🔑 <span><b>¿Vas a ser guía y administrador con la misma cuenta?</b> No necesitas dos logins — con tu cuenta de administrador ya entras aquí también. Solo pide que te inviten como <b>administrador</b>, no como guía.</span></div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-n">1</span>
+        <div><p class="step-title">Entra en <code>/guia</code></p><p class="step-body">Con el correo y la contraseña de tu cuenta. Si es tu primera vez, el administrador ya te debió invitar desde el panel.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">2</span>
+        <div><p class="step-title">Inicia el recorrido</p><p class="step-body">Botón "Iniciar recorrido nuevo": elige la ruta, cuántas personas van en el grupo, y notas si quieres.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">3</span>
+        <div><p class="step-title">Deja que el grupo camine</p><p class="step-body">Cada visitante registra en su propio celular. Tú puedes seguir entrando a ver cómo va el progreso.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">4</span>
+        <div><p class="step-title">Valida lo que marcó el grupo</p><p class="step-body">Por cada estación e indicador verás lo que registraron. <b>Confirma</b> si está bien, <b>ajusta</b> el valor si hace falta corregirlo, o <b>descarta</b> si algo no cuadra.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">5</span>
+        <div><p class="step-title">Revisa los hallazgos sin catalogar</p><p class="step-body">Ahí aparece, con foto, lo que alguien vio y no estaba en la lista — para que decidan si vale la pena sumarlo al catálogo.</p></div>
+      </div>
+      <div class="step">
+        <span class="step-n">6</span>
+        <div><p class="step-title">Cierra el recorrido</p><p class="step-body">Cuando termine el grupo. Después puedes exportarlo a Excel si necesitas el detalle completo.</p></div>
+      </div>
+    </div>
+
+    <div class="callout">🧭 <span><b>También puedes registrar tus propias observaciones</b> — el botón "Agregar mi observación" abre el mismo flujo del visitante, para lo que veas tú mismo durante el recorrido.</span></div>
+  </section>
+
+  <section class="role" id="panel" data-accent="panel">
+    <div class="role-head">
+      <span class="eyebrow">Con cuenta de administrador</span>
+      <h2>Panel de la finca</h2>
+    </div>
+    <p class="role-sub">Desde <code>/admin</code>, para quien organiza el contenido: qué señales existen, en qué ruta, y quién puede entrar. Una cuenta de administrador entra aquí <b>y</b> a <a href="#guia" style="color:var(--pollen);">Guía</a> — no hace falta una cuenta aparte para cada cosa.</p>
+
+    <div class="panel-grid">
+      <div class="panel-card"><p class="step-title">Indicadores</p><p>El catálogo de señales: nombre, foto, categoría y cómo se mide (conteo, sí/no, escala o solo foto).</p></div>
+      <div class="panel-card"><p class="step-title">Rutas</p><p>Las rutas de la finca, sus estaciones en orden, y el código QR para imprimir en cada sendero.</p></div>
+      <div class="panel-card"><p class="step-title">Preguntas</p><p>Las preguntas de cierre que responde el visitante al terminar su recorrido.</p></div>
+      <div class="panel-card"><p class="step-title">Recorridos</p><p>El historial completo — cada uno enlaza a la misma pantalla de validación que usa el guía.</p></div>
+      <div class="panel-card"><p class="step-title">Usuarios</p><p>Invitar a alguien nuevo como guía o administrador, y activar o desactivar cuentas.</p></div>
+    </div>
+  </section>
+
+  <footer class="faq">
+    <h2>Preguntas rápidas</h2>
+    <div class="faq-item"><p class="q">¿Necesito señal para usarla?</p><p class="a">Solo el visitante puede ir sin señal todo el recorrido. El guía y el panel sí la necesitan para validar y organizar.</p></div>
+    <div class="faq-item"><p class="q">¿Se puede instalar como una app?</p><p class="a">Sí — desde el navegador del celular, busca la opción "Agregar a pantalla de inicio" o "Instalar app". Queda como un ícono más, sin pasar por ninguna tienda de aplicaciones.</p></div>
+    <div class="faq-item"><p class="q">¿En qué idiomas está?</p><p class="a">El visitante puede elegir español o inglés. El guía y el panel de la finca quedan siempre en español.</p></div>
+  </footer>
+</main>

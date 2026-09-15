@@ -1,56 +1,82 @@
 import { useState } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { campo } from '../../i18n/textos.js'
+import { cn } from '../../lib/utils.js'
 
-// Dos preguntas de cierre (qué tanto aprendió, qué le llamó la atención) y
-// el botón que envía la bitácora. "Enviar" en este paso solo significa
-// "pasar de borrador a pendiente" en la base local — subirla a Supabase es
-// trabajo de otra pieza (el sincronizador), no de esta pantalla.
-export default function Cierre({ bitacora, onVolver, onEnviar }) {
-  const [aprendizaje, setAprendizaje] = useState(bitacora.aprendizaje ?? null)
-  const [comentario, setComentario] = useState(bitacora.comentario ?? '')
+// Preguntas de cierre (RF-06), definidas por la finca desde el panel — nada
+// fijo en el código. "Enviar" aquí solo significa "pasar de borrador a
+// pendiente" en la base local; subirla a Supabase es trabajo del
+// sincronizador, no de esta pantalla. Misma lógica de siempre — esto es
+// solo el diseño (Tailwind).
+export default function Cierre({ preguntas, idioma, textos, onVolver, onEnviar }) {
+  const [valores, setValores] = useState({})
   const [enviando, setEnviando] = useState(false)
+
+  function setValor(preguntaId, valor) {
+    setValores((v) => ({ ...v, [preguntaId]: valor }))
+  }
 
   async function enviar() {
     setEnviando(true)
     try {
-      await onEnviar({ aprendizaje, comentario })
+      await onEnviar(valores)
     } finally {
       setEnviando(false)
     }
   }
 
   return (
-    <>
-      <button className="back" type="button" onClick={onVolver}>← Volver a la lista</button>
-      <p className="eyebrow">Casi listo</p>
-      <h2>Antes de irte</h2>
-      <p>Dos preguntas cortas. Esto le sirve a la finca tanto como lo que viste.</p>
+    <div className="mx-auto flex w-full max-w-sm flex-col gap-5">
+      <button type="button" onClick={onVolver} className="inline-flex w-fit items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-ink">
+        <ArrowLeft className="size-3.5" /> {textos.volverALista}
+      </button>
 
-      <div className="q">¿Qué tanto aprendiste hoy sobre el suelo y el bosque?</div>
-      <div className="stars">
-        {[1, 2, 3, 4, 5].map((v) => (
-          <button key={v} type="button" aria-pressed={aprendizaje === v} onClick={() => setAprendizaje(v)}>
-            {v}
-          </button>
+      <div>
+        <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{textos.casiListo}</p>
+        <h1 className="mt-1 font-display text-2xl text-ink sm:text-3xl">{textos.antesDeIrte}</h1>
+        <p className="mt-2 text-ink-soft">{textos.dosPreguntas}</p>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        {preguntas.map((p) => (
+          <div key={p.id}>
+            <p className="mb-2 font-display font-bold text-ink">{campo(p, 'texto', idioma)}</p>
+            {p.tipo === 'escala' ? (
+              <>
+                <div className="flex gap-2">
+                  {[1, 2, 3, 4, 5].map((v) => (
+                    <button
+                      key={v} type="button" aria-pressed={valores[p.id] === v} onClick={() => setValor(p.id, v)}
+                      className={cn(
+                        'flex-1 aspect-square rounded-xl border-[1.5px] font-display text-lg font-bold transition-colors duration-150',
+                        valores[p.id] === v ? 'border-leaf bg-leaf-soft text-leaf-deep' : 'border-line bg-surface text-ink-soft',
+                      )}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-1.5 flex justify-between text-xs text-muted-foreground">
+                  <span>{campo(p, 'minimo', idioma)}</span>
+                  <span>{campo(p, 'maximo', idioma)}</span>
+                </div>
+              </>
+            ) : (
+              <textarea
+                placeholder={textos.opcional} value={valores[p.id] || ''} onChange={(e) => setValor(p.id, e.target.value)}
+                className="min-h-[84px] w-full resize-y rounded-xl border border-line bg-surface px-4 py-3 text-ink outline-none transition-colors focus:border-leaf focus:ring-2 focus:ring-leaf/20"
+              />
+            )}
+          </div>
         ))}
       </div>
-      <div className="scale-hint">
-        <span>Nada nuevo</span>
-        <span>Muchísimo</span>
-      </div>
 
-      <label htmlFor="comentario">¿Qué fue lo que más te llamó la atención?</label>
-      <textarea
-        id="comentario"
-        placeholder="Opcional"
-        value={comentario}
-        onChange={(e) => setComentario(e.target.value)}
-      />
-
-      <div className="stack">
-        <button className="btn" type="button" disabled={enviando} onClick={enviar}>
-          {enviando ? 'Enviando…' : 'Enviar bitácora'}
-        </button>
-      </div>
-    </>
+      <button
+        type="button" disabled={enviando} onClick={enviar}
+        className="w-full rounded-xl bg-leaf px-5 py-3.5 font-display font-semibold text-primary-foreground shadow-[var(--shadow-leaf)] transition-[background-color,transform] duration-150 ease-out hover:bg-leaf-deep active:scale-[0.98] disabled:opacity-40 motion-reduce:transition-none motion-reduce:active:scale-100"
+      >
+        {enviando ? textos.enviando : textos.enviarBitacora}
+      </button>
+    </div>
   )
 }

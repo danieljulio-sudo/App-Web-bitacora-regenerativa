@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import tailwindcss from '@tailwindcss/vite'
 
 // Ruta base: el sitio vive en https://danieljulio-sudo.github.io/App-Web-bitacora-regenerativa/
 const BASE = '/App-Web-bitacora-regenerativa/'
@@ -9,6 +10,7 @@ export default defineConfig({
   base: BASE,
   plugins: [
     react(),
+    tailwindcss(),
     // Convierte la app en instalable y la deja funcionar sin señal.
     VitePWA({
       registerType: 'autoUpdate',

@@ -1,32 +1,50 @@
 import { Link } from 'react-router-dom'
 import { supabaseListo } from '../lib/supabase.js'
-
-// Lista de entradas de la app. Cambiar este arreglo cambia las tarjetas de abajo.
-const entradas = [
-  { a: '/visitante', titulo: 'Visitante', texto: 'Registra lo que ves durante el recorrido.', paso: 'Paso 5' },
-  { a: '/guia', titulo: 'Guía', texto: 'Inicia el recorrido y valida las observaciones del grupo.', paso: 'Paso 6' },
-  { a: '/admin', titulo: 'Panel de la finca', texto: 'Catálogo, rutas, QR y resultados en el tiempo.', paso: 'Paso 7' },
-]
+import './Inicio.css'
 
 export default function Inicio() {
   return (
     <>
-      <p className="eyebrow">Versión en construcción</p>
-      <h1>Bitácora Regenerativa</h1>
-      <p>Tres entradas, una sola base de datos. Cada una se construye en su paso.</p>
-      <div style={{ display: 'grid', gap: 12, marginTop: 8 }}>
-        {entradas.map((e) => (
-          <Link key={e.a} to={e.a} className="card" style={{ textDecoration: 'none' }}>
-            <span className="pill warn">{e.paso}</span>
-            <h2 style={{ marginTop: 8 }}>{e.titulo}</h2>
-            <p style={{ margin: 0 }}>{e.texto}</p>
-          </Link>
-        ))}
+      <p className="eyebrow inicio-hero">Bitácora Regenerativa</p>
+      <h1>Mide el impacto regenerativo de tus recorridos</h1>
+      <p>El visitante registra lo que ve durante el recorrido, el guía valida y la finca ve los resultados en el tiempo.</p>
+
+      <div className="menu">
+        <Link to="/r/ruta-cacao" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--leaf-soft)' }} aria-hidden="true">🥾</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill">Visitante</span>
+            <h2>Escanea el QR de tu ruta</h2>
+            <p>Cada ruta tiene su propio código, al inicio del recorrido. No necesita instalar nada — toca esta tarjeta para probar con la ruta de ejemplo.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
+        </Link>
+
+        <Link to="/guia" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--pollen-soft)' }} aria-hidden="true">🧭</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill warn">Guía</span>
+            <h2>Guía</h2>
+            <p>Inicia el recorrido, valida las observaciones del grupo y registra las tuyas.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
+        </Link>
+
+        <Link to="/admin" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--cacao-soft)' }} aria-hidden="true">🌾</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill off">Finca</span>
+            <h2>Panel de la finca</h2>
+            <p>Catálogo, rutas, QR, recorridos y usuarios.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
+        </Link>
       </div>
-      <p className="muted" style={{ marginTop: 20 }}>
-        Nube: {supabaseListo ? 'conectada a Supabase' : 'sin configurar todavía (paso 2)'} ·{' '}
-        <a href={import.meta.env.BASE_URL + 'demo/'}>ver el demo</a>
-      </p>
+
+      <div className={`estado-nube ${supabaseListo ? 'ok' : 'mal'}`}>
+        <i />
+        {supabaseListo ? 'Conectado a Supabase' : 'Falta conectar Supabase (.env)'}
+      </div>
     </>
   )
 }
