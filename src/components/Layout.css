@@ -1,6 +1,18 @@
-.app { max-width: 440px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: var(--paper); }
+/* El fondo "de verdad" de la app: en el celular (RNF-02, donde vive el
+   visitante) esta tarjeta cubre TODA la pantalla, así que el degradado va
+   aquí y no en <body> — ahí nunca se llegaría a ver. Concentrado en las
+   esquinas de arriba, se apaga antes de llegar al bloque de texto para no
+   pelear con la lectura (radios grandes + "transparent" temprano). */
+.app {
+  position: relative; overflow: hidden; max-width: 440px; margin: 0 auto; min-height: 100vh;
+  display: flex; flex-direction: column; background-color: var(--paper);
+  background-image:
+    radial-gradient(480px circle at 12% -8%, var(--aurora-1), transparent 55%),
+    radial-gradient(420px circle at 105% 18%, var(--aurora-2), transparent 52%),
+    radial-gradient(520px circle at 50% 115%, var(--aurora-3), transparent 60%);
+}
 @media (min-width: 520px) {
-  .app { margin: 24px auto; min-height: calc(100vh - 48px); border-radius: 28px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
+  .app { margin: 24px auto; min-height: calc(100vh - 48px); border-radius: 28px; box-shadow: var(--shadow); border: 1px solid var(--line); }
 }
 /* el panel de la finca necesita más ancho: tablas, formularios de varias columnas */
 .app.ancho { max-width: 440px; }

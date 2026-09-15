@@ -11,6 +11,12 @@
   /* curvas de movimiento — nunca uses cubic-bezier sueltos, siempre estas */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  /* el "aurora" de fondo de .app (Layout.css) — concentrado arriba, se
+     desvanece antes de llegar al texto para que nunca compita con la
+     lectura. Tokens aparte para poder subir/bajar la intensidad de una vez. */
+  --aurora-1: rgba(196, 144, 15, .32);
+  --aurora-2: rgba(47, 107, 58, .28);
+  --aurora-3: rgba(91, 58, 33, .16);
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -20,16 +26,22 @@
     --shadow: 0 10px 30px rgba(0, 0, 0, .35);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3);
     --shadow-leaf: 0 10px 22px -8px rgba(127, 191, 134, .35);
+    --aurora-1: rgba(228, 181, 58, .22);
+    --aurora-2: rgba(127, 191, 134, .20);
+    --aurora-3: rgba(201, 151, 111, .12);
   }
 }
 
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; }
+/* Fondo de la página detrás de la tarjeta .app (solo se asoma en pantallas
+   anchas — en el celular la tarjeta cubre todo, por eso el fondo "de
+   verdad" que ve el visitante vive en .app, ver Layout.css). */
 body {
   margin: 0; color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   background-color: var(--paper);
-  background-image: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--pollen-soft) 55%, transparent), transparent 55%),
-    radial-gradient(circle at 100% 30%, color-mix(in srgb, var(--leaf-soft) 65%, transparent), transparent 50%);
+  background-image: radial-gradient(circle at 15% 0%, var(--aurora-1), transparent 55%),
+    radial-gradient(circle at 100% 30%, var(--aurora-2), transparent 50%);
   background-attachment: fixed;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
