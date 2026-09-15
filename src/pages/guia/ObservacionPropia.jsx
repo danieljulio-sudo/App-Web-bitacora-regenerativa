@@ -76,7 +76,7 @@ export default function ObservacionPropia({ recorrido, ruta, perfil, onCerrar })
 
   if (etapa === 'estacion') {
     const estacion = ruta.estaciones.find((e) => e.id === estacionActualId)
-    return <Estacion estacion={estacion} observaciones={observaciones ?? []} idioma="es" textos={textos} onAbrir={abrirIndicador} onVolver={volverAEstaciones} />
+    return <Estacion estacion={estacion} observaciones={observaciones ?? []} bitacoraId={bitacora.id} idioma="es" textos={textos} onAbrir={abrirIndicador} onVolver={volverAEstaciones} />
   }
 
   const estacion = ruta.estaciones.find((e) => e.id === estacionActualId)
