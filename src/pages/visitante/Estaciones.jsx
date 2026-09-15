@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { campo } from '../../i18n/textos.js'
 
 // Lista de estaciones de la ruta (RF-03), cada una con su progreso. Es
@@ -10,6 +11,7 @@ export default function Estaciones({ bitacora, estaciones, observaciones, idioma
 
   return (
     <>
+      <Link to="/" className="back">← {textos.volverInicio}</Link>
       <p className="eyebrow">{textos.tuBitacora}</p>
       <h2>{bitacora.nombreVisitante ? `${textos.tuBitacora}, ${bitacora.nombreVisitante}` : textos.tuBitacora}</h2>
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { PAISES } from '../../i18n/textos.js'
 
 // Primera pantalla: idioma, nombre, país y correo opcional (RF-01, RF-02).
@@ -17,9 +18,12 @@ export default function Bienvenida({ ruta, indicadores, idioma, setIdioma, texto
 
   return (
     <>
-      <div className="idiomas" role="group" aria-label={textos.idioma}>
-        <button type="button" aria-pressed={idioma === 'es'} onClick={() => setIdioma('es')}>ES</button>
-        <button type="button" aria-pressed={idioma === 'en'} onClick={() => setIdioma('en')}>EN</button>
+      <div className="fila-superior">
+        <Link to="/" className="back">← {textos.volverInicio}</Link>
+        <div className="idiomas" role="group" aria-label={textos.idioma}>
+          <button type="button" aria-pressed={idioma === 'es'} onClick={() => setIdioma('es')}>ES</button>
+          <button type="button" aria-pressed={idioma === 'en'} onClick={() => setIdioma('en')}>EN</button>
+        </div>
       </div>
 
       <p className="eyebrow">{ruta.nombre}</p>
