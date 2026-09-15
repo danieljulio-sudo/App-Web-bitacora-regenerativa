@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useConteo } from '../../lib/useConteo.js'
+import Confeti from './Confeti.jsx'
 
 // Pantalla final (RF-07). `resumen` ya viene calculado desde Visitante.jsx
 // porque, para cuando llegamos aquí, la bitácora ya se cerró (pasó a
@@ -11,7 +12,10 @@ export default function Gracias({ resumen, textos, onNueva }) {
     <>
       <p className="eyebrow">{textos.graciasEyebrow}</p>
       <h2>{textos.gracias(resumen.nombreVisitante)}</h2>
-      <div className="big entra">{vistos} / {resumen.total}</div>
+      <div className="big entra">
+        {vistos} / {resumen.total}
+        <Confeti />
+      </div>
       <p>{textos.resumenTexto(resumen.vistos, resumen.total)}</p>
       <div className="stack">
         <button className="btn soft" type="button" onClick={onNueva}>{textos.nuevaBitacora}</button>

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { campo } from '../../i18n/textos.js'
+import { colorPorIndice } from '../../lib/colorPorCategoria.js'
 
 // Lista de estaciones de la ruta (RF-03), cada una con su progreso. Es
 // "tonta" a propósito: solo lee `observaciones` (que ya llegó reactivamente
@@ -21,11 +22,11 @@ export default function Estaciones({ bitacora, estaciones, observaciones, idioma
       </div>
 
       <div className="tarjetas">
-        {estaciones.map((estacion) => {
+        {estaciones.map((estacion, indice) => {
           const respondidosEstacion = observaciones.filter((o) => o.estacionId === estacion.id).length
           return (
             <button key={estacion.id} className="tarjeta estacion" type="button" onClick={() => onAbrir(estacion.id)}>
-              <div className="tarjeta-img" aria-hidden="true">📍</div>
+              <div className="tarjeta-img" style={{ '--acento-local': colorPorIndice(indice) }} aria-hidden="true">📍</div>
               <div className="tarjeta-body">
                 <div className="tarjeta-nombre">{campo(estacion, 'nombre', idioma)}</div>
                 <div className="tarjeta-pista">{campo(estacion, 'descripcion', idioma)}</div>

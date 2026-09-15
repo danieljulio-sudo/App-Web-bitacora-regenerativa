@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PAISES } from '../../i18n/textos.js'
+import { colorPorCategoria } from '../../lib/colorPorCategoria.js'
 
 // Primera pantalla: idioma, nombre, país y correo opcional (RF-01, RF-02).
 // No toca la base de datos — solo junta los datos y avisa al padre
@@ -32,7 +33,15 @@ export default function Bienvenida({ ruta, indicadores, idioma, setIdioma, texto
 
       <div className="preview">
         {indicadores.map((i) => (
-          <div key={i.id} className="thumb" title={idioma === 'en' ? i.nombre_en || i.nombre_es : i.nombre_es} aria-hidden="true">{i.emoji}</div>
+          <div
+            key={i.id}
+            className="thumb"
+            style={{ '--acento-local': colorPorCategoria(i.categoria) }}
+            title={idioma === 'en' ? i.nombre_en || i.nombre_es : i.nombre_es}
+            aria-hidden="true"
+          >
+            {i.emoji}
+          </div>
         ))}
       </div>
 

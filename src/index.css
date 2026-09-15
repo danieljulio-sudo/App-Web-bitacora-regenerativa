@@ -25,7 +25,13 @@
 
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0; color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  background-color: var(--paper);
+  background-image: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--pollen-soft) 55%, transparent), transparent 55%),
+    radial-gradient(circle at 100% 30%, color-mix(in srgb, var(--leaf-soft) 65%, transparent), transparent 50%);
+  background-attachment: fixed;
+}
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; }
 a { color: inherit; }
@@ -42,7 +48,8 @@ p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 18px;
-  border-radius: 14px; border: 0; background: var(--leaf); color: #fff; font-family: var(--display); font-weight: 700;
+  border-radius: 14px; border: 0; background: linear-gradient(135deg, var(--leaf), var(--leaf-deep));
+  color: #fff; font-family: var(--display); font-weight: 700;
   font-size: 17px; text-decoration: none; box-shadow: var(--shadow-leaf);
   transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), opacity 150ms var(--ease-out);
 }

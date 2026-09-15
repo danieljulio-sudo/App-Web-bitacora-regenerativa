@@ -30,7 +30,7 @@ textarea { min-height: 84px; resize: vertical; }
 .preview { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 4px; }
 .preview .thumb {
   aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line);
-  background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
+  background: radial-gradient(circle at 30% 25%, var(--surface), var(--acento-local, var(--leaf-soft)));
   display: flex; align-items: center; justify-content: center; font-size: 30px;
   animation: aparecer 320ms var(--ease-out) both;
 }
@@ -45,7 +45,8 @@ textarea { min-height: 84px; resize: vertical; }
 .progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; }
 .progress .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .progress .bar i {
-  display: block; height: 100%; width: 100%; background: var(--leaf); transform-origin: left;
+  display: block; height: 100%; width: 100%; transform-origin: left;
+  background: linear-gradient(90deg, var(--leaf), var(--pollen));
   transform: scaleX(0); transition: transform 320ms var(--ease-in-out);
 }
 .progress span { font-family: var(--display); font-weight: 700; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -63,7 +64,7 @@ textarea { min-height: 84px; resize: vertical; }
 }
 .tarjeta-img {
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 40px;
-  background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
+  background: radial-gradient(circle at 30% 25%, var(--surface), var(--acento-local, var(--leaf-soft)));
 }
 .tarjeta-body { padding: 12px 14px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
 .tarjeta-nombre { font-family: var(--display); font-weight: 700; font-size: 16px; line-height: 1.15; }
@@ -87,7 +88,7 @@ textarea { min-height: 84px; resize: vertical; }
 }
 .hero {
   border-radius: 20px; aspect-ratio: 4 / 3; margin: 4px 0 12px; display: flex; align-items: center; justify-content: center;
-  font-size: 72px; background: radial-gradient(circle at 30% 25%, var(--surface), var(--leaf-soft));
+  font-size: 72px; background: radial-gradient(circle at 30% 25%, var(--surface), var(--acento-local, var(--leaf-soft)));
   animation: aparecer 260ms var(--ease-out) both;
 }
 .why { background: var(--pollen-soft); border-left: 3px solid var(--pollen); padding: 10px 14px; border-radius: 0 12px 12px 0; font-size: 15px; margin: 0 0 16px; color: var(--ink); }
@@ -125,4 +126,20 @@ textarea { min-height: 84px; resize: vertical; }
 /* número grande de la pantalla de gracias — la única pantalla "de una sola
    vez por recorrido", así que es donde el presupuesto de delight vive
    (ver el conteo animado en Gracias.jsx). */
-.big { font-family: var(--display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -.03em; color: var(--leaf); margin: 6px 0 2px; font-variant-numeric: tabular-nums; }
+.big {
+  position: relative; font-family: var(--display); font-weight: 700; font-size: 56px; line-height: 1; letter-spacing: -.03em;
+  margin: 6px 0 2px; font-variant-numeric: tabular-nums;
+  background: linear-gradient(120deg, var(--leaf), var(--pollen)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* estallido de una sola vez alrededor del número — ver Confeti.jsx */
+.confeti { position: absolute; inset: 0; pointer-events: none; }
+.confeti-pieza {
+  position: absolute; top: 50%; left: 50%; font-size: 20px; opacity: 0;
+  animation: estallar 800ms var(--ease-out) both;
+}
+@keyframes estallar {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1); opacity: 0; }
+}

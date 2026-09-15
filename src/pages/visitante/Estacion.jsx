@@ -1,4 +1,5 @@
 import { campo } from '../../i18n/textos.js'
+import { colorPorCategoria } from '../../lib/colorPorCategoria.js'
 
 // Indicadores de una sola estación (RF-03/RF-04). Misma idea que
 // Estaciones.jsx pero un nivel más adentro.
@@ -14,7 +15,7 @@ export default function Estacion({ estacion, observaciones, idioma, textos, onAb
           const o = observaciones.find((x) => x.indicadorId === i.id)
           return (
             <button key={i.id} className="tarjeta" type="button" onClick={() => onAbrir(i.id)}>
-              <div className="tarjeta-img" aria-hidden="true">{i.emoji}</div>
+              <div className="tarjeta-img" style={{ '--acento-local': colorPorCategoria(i.categoria) }} aria-hidden="true">{i.emoji}</div>
               {o?.tieneFoto && <span className="photo-dot">📷</span>}
               <div className="tarjeta-body">
                 <div className="tarjeta-nombre">{campo(i, 'nombre', idioma)}</div>
