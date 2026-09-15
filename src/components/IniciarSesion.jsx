@@ -17,19 +17,20 @@ function traducirError(mensaje) {
   return mapa[mensaje] || mensaje
 }
 
-// Campo de texto con icono a la izquierda. El borde va sobre --paper (más
-// oscuro que la tarjeta en --surface) para que se note incluso en pantallas
-// comprimidas o con poco contraste — la queja original era "no se ve el
-// cuadro del input", así que aquí el contraste es la prioridad, no solo el gusto.
+// Campo de texto con icono a la izquierda. El "borde" es en realidad un
+// degradado: el envoltorio pinta el gradiente de fondo y el input, un poco
+// más chico por dentro, tapa todo menos ese anillo de 2px — así el contorno
+// nunca depende de que un border-color sutil se note sobre --background (la
+// queja original era justo esa: "no se ve el cuadro del input").
 function Campo({ icono: Icono, label, ...props }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>
-      <span className="relative flex items-center">
-        <Icono className="pointer-events-none absolute left-3.5 size-4 text-muted-foreground" />
+      <span className="relative flex items-center rounded-xl bg-[linear-gradient(135deg,var(--leaf),var(--pollen))] p-[2px] shadow-[var(--shadow-sm)] transition-shadow duration-150 ease-out focus-within:shadow-[0_0_0_4px_rgba(47,107,58,0.18)]">
+        <Icono className="pointer-events-none absolute left-3.5 z-10 size-4 text-muted-foreground" />
         <input
           {...props}
-          className="w-full rounded-xl border border-line bg-background py-3 pl-10 pr-3.5 text-ink outline-none transition-colors focus:border-leaf focus:ring-2 focus:ring-leaf/20"
+          className="w-full rounded-[10px] border-0 bg-background py-3 pl-10 pr-3.5 text-ink outline-none"
         />
       </span>
     </label>
