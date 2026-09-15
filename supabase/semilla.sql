@@ -1,8 +1,8 @@
 -- ============================================================================
 -- Bitácora Regenerativa · Datos de ejemplo para probar Fase 1
 -- ============================================================================
--- Correr DESPUÉS de supabase/schema.sql. Es la ruta de prueba: 1 ruta, 3
--- estaciones, 6 indicadores (uno de cada tipo de medición) y 3 preguntas de
+-- Correr DESPUÉS de supabase/schema.sql. Es la ruta de prueba: 1 ruta, 4
+-- estaciones, 7 indicadores (los 4 tipos de medición) y 3 preguntas de
 -- cierre. El código QR de esta ruta es "ruta-cacao" → /r/ruta-cacao.
 --
 -- Se puede correr de nuevo sin duplicar nada ("on conflict do nothing" por id).
@@ -12,19 +12,23 @@
 
 insert into rutas (id, nombre, codigo, descripcion, activa) values
   ('11111111-1111-1111-1111-111111111111', 'Ruta del Cacao', 'ruta-cacao',
-   'Recorrido de ejemplo por la finca: bosque, cultivo de cacao y quebrada.', true)
+   'Recorrido de ejemplo por la finca: caminito de entrada, bosque, cultivo de cacao y área de la casa.', true)
 on conflict (id) do nothing;
 
 insert into estaciones (id, ruta_id, orden, nombre_es, nombre_en, descripcion_es, descripcion_en) values
-  ('22222222-2222-2222-2222-222222222201', '11111111-1111-1111-1111-111111111111', 1,
-   'Entrada del bosque', 'Forest entrance',
-   'El punto donde el sendero deja el cultivo y entra al bosque.', 'Where the trail leaves the crop and enters the forest.'),
-  ('22222222-2222-2222-2222-222222222202', '11111111-1111-1111-1111-111111111111', 2,
+  ('22222222-2222-2222-2222-222222222211', '11111111-1111-1111-1111-111111111111', 1,
+   'Caminito de entrada', 'Entry path',
+   'El caminito corto antes de tomar el sendero principal — aquí también hay señales que vale la pena mirar.',
+   'The short path before the main trail — there are signs worth looking for here too.'),
+  ('22222222-2222-2222-2222-222222222212', '11111111-1111-1111-1111-111111111111', 2,
+   'Sendero del bosque', 'Forest trail',
+   'El sendero que atraviesa el bosque, antes de llegar al cultivo.', 'The trail that crosses the forest, before reaching the crop.'),
+  ('22222222-2222-2222-2222-222222222213', '11111111-1111-1111-1111-111111111111', 3,
    'Zona de cacao', 'Cacao area',
    'Los árboles de cacao bajo sombra, en plena producción.', 'The shade-grown cacao trees, in full production.'),
-  ('22222222-2222-2222-2222-222222222203', '11111111-1111-1111-1111-111111111111', 3,
-   'Quebrada', 'Creek',
-   'El agua que riega la finca y de la que depende todo lo demás.', 'The water that feeds the farm and everything else depends on.')
+  ('22222222-2222-2222-2222-222222222214', '11111111-1111-1111-1111-111111111111', 4,
+   'Área de la casa', 'House area',
+   'Alrededor de la casa de la finca: huerta, compostaje y vida cotidiana.', 'Around the farmhouse: garden, composting and everyday life.')
 on conflict (id) do nothing;
 
 insert into indicadores (id, nombre_es, nombre_en, nombre_cientifico, pista_es, pista_en, explicacion_es, explicacion_en, categoria, tipo_medicion, emoji, pide_foto, orden) values
@@ -57,16 +61,22 @@ insert into indicadores (id, nombre_es, nombre_en, nombre_cientifico, pista_es, 
    'Fíjate en el color y si hay espuma', 'Look at the color and whether there is foam',
    'Una foto del agua ayuda a la finca a llevar un registro visual de su claridad a lo largo del año.',
    'A photo of the water helps the farm keep a visual record of its clarity through the year.',
-   'agua', 'foto', '💧', true, 6)
+   'agua', 'foto', '💧', true, 6),
+  ('33333333-3333-3333-3333-333333333307', 'Compostaje casero', 'Home composting', '',
+   'Cerca de la cocina o el huerto', 'Near the kitchen or the garden',
+   'Compostar los residuos de comida cierra el ciclo: lo que sale de la tierra vuelve a ella en vez de convertirse en basura.',
+   'Composting food scraps closes the loop: what comes from the soil goes back to it instead of becoming trash.',
+   'suelo', 'si_no', '🌱', true, 7)
 on conflict (id) do nothing;
 
 insert into estacion_indicadores (estacion_id, indicador_id, orden) values
-  ('22222222-2222-2222-2222-222222222201', '33333333-3333-3333-3333-333333333301', 1),
-  ('22222222-2222-2222-2222-222222222201', '33333333-3333-3333-3333-333333333302', 2),
-  ('22222222-2222-2222-2222-222222222202', '33333333-3333-3333-3333-333333333303', 1),
-  ('22222222-2222-2222-2222-222222222202', '33333333-3333-3333-3333-333333333304', 2),
-  ('22222222-2222-2222-2222-222222222202', '33333333-3333-3333-3333-333333333305', 3),
-  ('22222222-2222-2222-2222-222222222203', '33333333-3333-3333-3333-333333333306', 1)
+  ('22222222-2222-2222-2222-222222222211', '33333333-3333-3333-3333-333333333301', 1), -- diente de león
+  ('22222222-2222-2222-2222-222222222211', '33333333-3333-3333-3333-333333333302', 2), -- suelo cubierto
+  ('22222222-2222-2222-2222-222222222212', '33333333-3333-3333-3333-333333333305', 1), -- lombrices
+  ('22222222-2222-2222-2222-222222222212', '33333333-3333-3333-3333-333333333304', 2), -- sombra del dosel
+  ('22222222-2222-2222-2222-222222222213', '33333333-3333-3333-3333-333333333303', 1), -- abejas
+  ('22222222-2222-2222-2222-222222222213', '33333333-3333-3333-3333-333333333306', 2), -- agua de la quebrada
+  ('22222222-2222-2222-2222-222222222214', '33333333-3333-3333-3333-333333333307', 1)  -- compostaje casero
 on conflict (estacion_id, indicador_id) do nothing;
 
 insert into preguntas (id, orden, texto_es, texto_en, tipo, minimo_es, minimo_en, maximo_es, maximo_en) values
