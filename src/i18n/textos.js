@@ -50,6 +50,13 @@ export const TEXTOS = {
     rutaNoEncontrada: 'No encontramos esta ruta. Revisa el código QR o pide uno nuevo al guía.',
     sinRutaTitulo: 'Escanea el QR de tu ruta',
     sinRutaTexto: 'Esta dirección abre sola cuando escaneas el código QR que está al inicio del recorrido.',
+    hallazgoAgregar: '¿Viste algo que no está aquí?',
+    hallazgoTitulo: '¿Qué encontraste?',
+    hallazgoTexto: 'Cuéntanos qué era y, si puedes, tómale una foto. El equipo de la finca lo revisa y puede sumarlo al catálogo.',
+    hallazgoPlaceholder: 'Ej. un hongo raro, una flor…',
+    hallazgoGuardar: 'Guardar hallazgo',
+    hallazgoCancelar: 'Cancelar',
+    hallazgoEliminar: 'Quitar',
   },
   en: {
     idioma: 'Language',
@@ -97,6 +104,13 @@ export const TEXTOS = {
     rutaNoEncontrada: "We couldn't find this route. Check the QR code or ask your guide for a new one.",
     sinRutaTitulo: 'Scan your route\'s QR code',
     sinRutaTexto: 'This page opens on its own when you scan the QR code at the start of the tour.',
+    hallazgoAgregar: 'Did you see something not listed here?',
+    hallazgoTitulo: 'What did you find?',
+    hallazgoTexto: "Tell us what it was and, if you can, take a photo. The farm's team reviews it and may add it to the catalog.",
+    hallazgoPlaceholder: 'E.g. a strange mushroom, a flower…',
+    hallazgoGuardar: 'Save finding',
+    hallazgoCancelar: 'Cancel',
+    hallazgoEliminar: 'Remove',
   },
 }
 

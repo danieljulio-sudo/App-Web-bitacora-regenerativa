@@ -76,6 +76,26 @@ textarea { min-height: 84px; resize: vertical; }
   font-size: 11px; font-family: var(--display); font-weight: 700; color: var(--cacao); border: 1px solid var(--line);
 }
 
+/* "¿viste algo que no está aquí?" — hallazgos sueltos de una estación */
+.hallazgos { display: grid; gap: 8px; }
+.hallazgo-fila {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+}
+.hallazgo-nombre { font-size: 14px; color: var(--ink); }
+.hallazgo-quitar {
+  background: transparent; border: 0; color: var(--muted); font-size: 15px; line-height: 1; padding: 4px;
+  transition: color 150ms var(--ease-out), transform 120ms var(--ease-out);
+}
+.hallazgo-quitar:active { transform: scale(0.9); }
+@media (hover: hover) and (pointer: fine) {
+  .hallazgo-quitar:hover { color: var(--cacao); }
+}
+.hallazgo-form {
+  background: var(--surface); border: 1.5px dashed var(--line); border-radius: 16px; padding: 14px 16px;
+}
+.hallazgo-form .q { margin-top: 0; }
+
 /* pantalla de detalle */
 .back {
   background: transparent; border: 0; padding: 4px 0; color: var(--muted); font-family: var(--display); font-weight: 700;

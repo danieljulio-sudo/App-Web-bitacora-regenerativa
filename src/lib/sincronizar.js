@@ -73,6 +73,7 @@ async function subirBitacora(bitacora) {
         bitacora_id: o.bitacoraId,
         estacion_id: o.estacionId,
         indicador_id: o.indicadorId,
+        nombre_libre: o.nombreLibre ?? null, // "hallazgo" sin catálogo (indicadorId null)
         visto: o.visto,
         cantidad: o.cantidad,
         escala: o.escala,

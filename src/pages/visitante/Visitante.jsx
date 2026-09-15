@@ -172,6 +172,7 @@ export default function Visitante() {
         <Estacion
           estacion={estacion}
           observaciones={observaciones ?? []}
+          bitacoraId={bitacora.id}
           idioma={idioma}
           textos={textos}
           onAbrir={abrirIndicador}

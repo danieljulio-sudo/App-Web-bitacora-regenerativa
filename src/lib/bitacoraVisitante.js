@@ -61,6 +61,34 @@ export async function guardarObservacion(bitacoraId, estacionId, indicador, { vi
   return id
 }
 
+// "Hallazgo": algo que el visitante o el guía vieron en una estación y que
+// NO está en el catálogo todavía. A diferencia de guardarObservacion() (un
+// slot fijo por indicador), aquí puede haber varios por estación — cada uno
+// con su propio id, así que no se sobreescriben entre sí. Se guardan como
+// una observación más (mismo pipeline de sincronización) pero con
+// `indicadorId: null` y su nombre suelto en `nombreLibre`; el admin decide
+// después, desde el panel, si pasan a ser un indicador oficial.
+export async function crearHallazgo(bitacoraId, estacionId, nombreLibre) {
+  const id = `${bitacoraId}:${estacionId}:libre:${crypto.randomUUID()}`
+  await db.observaciones.put({
+    id,
+    bitacoraId,
+    estacionId,
+    indicadorId: null,
+    nombreLibre,
+    visto: true,
+    cantidad: 0,
+    escala: null,
+    tieneFoto: false,
+  })
+  return id
+}
+
+export async function eliminarHallazgo(id) {
+  await eliminarFoto(id)
+  await db.observaciones.delete(id)
+}
+
 export function obtenerFoto(observacionId) {
   return db.fotos.get(observacionId)
 }

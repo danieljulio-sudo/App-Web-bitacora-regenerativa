@@ -7,6 +7,7 @@ import { obtenerRecorrido, cerrarRecorrido, marcarValidado, resumenRecorrido, va
 import { exportarRecorridoExcel } from '../../lib/exportar.js'
 import { campo } from '../../i18n/textos.js'
 import { cn } from '../../lib/utils.js'
+import { urlPublica } from '../../lib/supabase.js'
 import ObservacionPropia from './ObservacionPropia.jsx'
 
 const TINTE_DECISION = {
@@ -178,6 +179,31 @@ export default function Recorrido() {
           </ul>
         </div>
       ))}
+
+      {resumen.hallazgos.length > 0 && (
+        <div>
+          <h2 className="font-display text-sm uppercase tracking-[0.14em] text-muted-foreground">Hallazgos sin catalogar</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Cosas que vieron y no estaban en la lista. Si vale la pena, agrégalas como indicador nuevo desde el panel → Indicadores.</p>
+          <ul className="mt-3 flex flex-col gap-3">
+            {resumen.hallazgos.map((h) => {
+              const estacion = ruta.estaciones.find((e) => e.id === h.estacionId)
+              const foto = urlPublica('fotos', h.fotoPath)
+              return (
+                <li key={h.id} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-4 shadow-[0_1px_0_rgba(36,33,28,0.04)]">
+                  {foto && <img src={foto} alt="" className="size-16 shrink-0 rounded-lg border border-line object-cover" />}
+                  <div className="min-w-0">
+                    <p className="font-medium text-ink">🔍 {h.nombreLibre}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {estacion ? campo(estacion, 'nombre', 'es') : 'Estación'}
+                      {h.nombreVisitante ? ` · visto por ${h.nombreVisitante}` : ''}
+                    </p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       <div className="flex flex-col gap-3 pb-6">
         <button

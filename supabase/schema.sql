@@ -209,11 +209,13 @@ create index if not exists bitacoras_ruta_creada_idx on bitacoras (ruta_id, crea
 create index if not exists bitacoras_recorrido_idx on bitacoras (recorrido_id);
 
 create table if not exists observaciones (
-  -- id armado en el celular: "<bitacoraId>:<estacionId>:<indicadorId>"
+  -- id armado en el celular: "<bitacoraId>:<estacionId>:<indicadorId>", o
+  -- "<bitacoraId>:<estacionId>:libre:<uuid>" para un hallazgo sin catálogo.
   id text primary key,
   bitacora_id uuid not null references bitacoras (id) on delete cascade,
   estacion_id uuid references estaciones (id) on delete set null,
   indicador_id uuid references indicadores (id) on delete set null,
+  nombre_libre text,               -- "vi algo que no está en la lista": cómo lo describió quien lo vio
   visto boolean not null,
   cantidad int not null default 0,
   escala smallint,

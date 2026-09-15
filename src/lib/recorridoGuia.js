@@ -88,15 +88,31 @@ export async function resumenRecorrido(recorrido) {
   if (errorBitacoras) throw errorBitacoras
 
   const ids = (bitacoras ?? []).map((b) => b.id)
-  if (ids.length === 0) return { bitacoras: [], agregados: [] }
+  if (ids.length === 0) return { bitacoras: [], agregados: [], hallazgos: [] }
 
   const { data: observaciones, error: errorObs } = await supabase.from('observaciones').select('*').in('bitacora_id', ids)
   if (errorObs) throw errorObs
   const { data: validaciones, error: errorVal } = await supabase.from('validaciones').select('*').eq('recorrido_id', recorrido.id)
   if (errorVal) throw errorVal
 
+  // Los hallazgos ("vi algo que no está en la lista") no tienen indicador_id
+  // — agruparlos igual que el resto los mezclaría a todos bajo la misma
+  // llave "estacion:null". Van aparte, uno por uno, sin promediar nada.
+  const bitacoraPorId = new Map((bitacoras ?? []).map((b) => [b.id, b]))
+  const hallazgos = (observaciones ?? [])
+    .filter((o) => !o.indicador_id && o.nombre_libre)
+    .map((o) => ({
+      id: o.id,
+      estacionId: o.estacion_id,
+      nombreLibre: o.nombre_libre,
+      fotoPath: o.foto_path,
+      nombreVisitante: bitacoraPorId.get(o.bitacora_id)?.nombre_visitante ?? null,
+      creadaEn: o.creada_en,
+    }))
+
   const grupos = new Map()
   for (const o of observaciones ?? []) {
+    if (!o.indicador_id) continue
     const clave = `${o.estacion_id}:${o.indicador_id}`
     if (!grupos.has(clave)) {
       grupos.set(clave, { estacionId: o.estacion_id, indicadorId: o.indicador_id, vistos: 0, total: 0, sumaCantidad: 0, sumaEscala: 0, conEscala: 0, conFoto: 0 })
@@ -121,7 +137,7 @@ export async function resumenRecorrido(recorrido) {
     validacion: (validaciones ?? []).find((v) => v.estacion_id === g.estacionId && v.indicador_id === g.indicadorId) ?? null,
   }))
 
-  return { bitacoras: bitacoras ?? [], agregados }
+  return { bitacoras: bitacoras ?? [], agregados, hallazgos }
 }
 
 // RF-11: confirmar, ajustar o descartar una observación agregada.
