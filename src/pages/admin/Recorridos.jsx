@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Eye } from 'lucide-react'
 import { listarRecorridos } from '../../lib/admin.js'
+import { chip } from '../../lib/estilosFormulario.js'
+import { cn } from '../../lib/utils.js'
+
+const TINTE = {
+  validado: 'bg-leaf-soft text-leaf-deep',
+  cerrado: 'bg-pollen-soft text-accent-foreground',
+  abierto: 'bg-muted text-muted-foreground',
+}
 
 // RF-16: lista de recorridos con su estado. Cada fila abre la misma
 // pantalla que usa el guía para validar y exportar — ver
@@ -11,25 +20,31 @@ export default function Recorridos() {
   useEffect(() => { listarRecorridos().then(setLista) }, [])
 
   return (
-    <>
-      <h2>Recorridos</h2>
-      <div className="tabla-envoltura">
-        <table className="tabla">
-          <thead><tr><th>Fecha</th><th>Ruta</th><th>Grupo</th><th>Estado</th><th></th></tr></thead>
+    <div>
+      <h2 className="font-display text-lg text-ink">Recorridos</h2>
+      <div className="mt-3 overflow-x-auto rounded-xl border border-line">
+        <table className="w-full border-collapse text-sm">
+          <thead>
+            <tr className="border-b border-line text-left text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+              <th className="px-4 py-2.5">Fecha</th><th className="px-4 py-2.5">Ruta</th><th className="px-4 py-2.5">Grupo</th><th className="px-4 py-2.5">Estado</th><th className="px-4 py-2.5"></th>
+            </tr>
+          </thead>
           <tbody>
             {lista?.map((r) => (
-              <tr key={r.id}>
-                <td>{new Date(r.iniciado_en).toLocaleString('es-CO')}</td>
-                <td>{r.rutas?.nombre}</td>
-                <td>{r.tamano_grupo ?? '—'}</td>
-                <td><span className={r.estado === 'validado' ? 'pill' : r.estado === 'cerrado' ? 'pill warn' : 'pill off'}>{r.estado}</span></td>
-                <td><Link className="pill" to={`/guia/recorrido/${r.id}`}>Ver</Link></td>
+              <tr key={r.id} className="border-b border-line last:border-0 hover:bg-leaf-soft/40">
+                <td className="px-4 py-2.5 text-ink">{new Date(r.iniciado_en).toLocaleString('es-CO')}</td>
+                <td className="px-4 py-2.5 text-ink">{r.rutas?.nombre}</td>
+                <td className="px-4 py-2.5 text-muted-foreground">{r.tamano_grupo ?? '—'}</td>
+                <td className="px-4 py-2.5"><span className={cn(chip, TINTE[r.estado] ?? TINTE.abierto)}>{r.estado}</span></td>
+                <td className="px-4 py-2.5">
+                  <Link to={`/guia/recorrido/${r.id}`} className={cn(chip, 'bg-leaf-soft text-leaf-deep')}><Eye className="size-3" /> Ver</Link>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        {lista?.length === 0 && <p className="muted" style={{ padding: 14 }}>Todavía no hay recorridos.</p>}
+        {lista?.length === 0 && <p className="p-4 text-sm text-muted-foreground">Todavía no hay recorridos.</p>}
       </div>
-    </>
+    </div>
   )
 }
