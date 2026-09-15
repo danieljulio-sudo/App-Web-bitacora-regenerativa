@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
+import { ChevronRight, Pencil, Printer, QrCode, Trash2 } from 'lucide-react'
 import {
   listarRutas, crearRuta, listarEstaciones, guardarEstacion, eliminarEstacion,
   asignarIndicador, quitarIndicador, listarIndicadores,
 } from '../../lib/admin.js'
 import { generarQR, urlDeRuta } from '../../lib/qr.js'
+import { campoInput, campoLabel, tarjeta, botonPrimario, botonSecundario, chip } from '../../lib/estilosFormulario.js'
+import { cn } from '../../lib/utils.js'
 
 const RUTA_VACIA = { nombre: '', codigo: '', descripcion: '' }
 const ESTACION_VACIA = { id: null, orden: 0, nombre_es: '', nombre_en: '', descripcion_es: '', descripcion_en: '' }
@@ -60,89 +63,127 @@ export default function Rutas() {
   const rutaSeleccionada = rutas?.find((r) => r.id === seleccionadaId)
 
   return (
-    <>
-      <h2>Nueva ruta</h2>
-      <form onSubmit={crear}>
-        <label htmlFor="rnombre">Nombre</label>
-        <input id="rnombre" required value={formRuta.nombre} onChange={(e) => setFormRuta({ ...formRuta, nombre: e.target.value })} />
-        <label htmlFor="rcodigo">Código para el QR (sin espacios)</label>
-        <input id="rcodigo" required pattern="[a-z0-9-]+" placeholder="ruta-cacao" value={formRuta.codigo} onChange={(e) => setFormRuta({ ...formRuta, codigo: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })} />
-        <label htmlFor="rdesc">Descripción</label>
-        <input id="rdesc" value={formRuta.descripcion} onChange={(e) => setFormRuta({ ...formRuta, descripcion: e.target.value })} />
-        <div className="stack"><button className="btn" type="submit">Crear ruta</button></div>
-      </form>
+    <div className="flex flex-col gap-6">
+      <div className={tarjeta}>
+        <h2 className="font-display text-lg text-ink">Nueva ruta</h2>
+        <form onSubmit={crear} className="mt-1 grid gap-x-5 sm:grid-cols-2">
+          <div>
+            <label htmlFor="rnombre" className={campoLabel}>Nombre</label>
+            <input id="rnombre" required value={formRuta.nombre} onChange={(e) => setFormRuta({ ...formRuta, nombre: e.target.value })} className={campoInput} />
+          </div>
+          <div>
+            <label htmlFor="rcodigo" className={campoLabel}>Código para el QR (sin espacios)</label>
+            <input
+              id="rcodigo" required pattern="[a-z0-9-]+" placeholder="ruta-cacao" value={formRuta.codigo}
+              onChange={(e) => setFormRuta({ ...formRuta, codigo: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
+              className={campoInput}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label htmlFor="rdesc" className={campoLabel}>Descripción</label>
+            <input id="rdesc" value={formRuta.descripcion} onChange={(e) => setFormRuta({ ...formRuta, descripcion: e.target.value })} className={campoInput} />
+          </div>
+          <div className="mt-4 sm:col-span-2">
+            <button type="submit" className={botonPrimario}>Crear ruta</button>
+          </div>
+        </form>
+      </div>
 
-      <h2 style={{ marginTop: 28 }}>Tus rutas</h2>
-      <div className="tarjetas">
-        {rutas?.map((r) => (
-          <button key={r.id} type="button" className="tarjeta estacion" style={{ padding: 14 }} onClick={() => elegir(r)}>
-            <div className="tarjeta-body">
-              <div className="tarjeta-nombre">{r.nombre}</div>
-              <div className="tarjeta-pista">/r/{r.codigo} · {r.activa ? 'activa' : 'inactiva'}</div>
-            </div>
-          </button>
-        ))}
+      <div>
+        <h2 className="font-display text-lg text-ink">Tus rutas</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {rutas?.map((r) => (
+            <button
+              key={r.id} type="button" onClick={() => elegir(r)}
+              className={cn(
+                'flex items-center justify-between gap-2 rounded-xl border bg-surface p-4 text-left transition-colors hover:border-leaf/40',
+                seleccionadaId === r.id ? 'border-leaf bg-leaf-soft/40' : 'border-line',
+              )}
+            >
+              <div className="min-w-0">
+                <p className="truncate font-medium text-ink">{r.nombre}</p>
+                <p className="text-xs text-muted-foreground">/r/{r.codigo} · {r.activa ? 'activa' : 'inactiva'}</p>
+              </div>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+            </button>
+          ))}
+        </div>
       </div>
 
       {rutaSeleccionada && (
         <>
-          <h2 style={{ marginTop: 28 }}>QR de "{rutaSeleccionada.nombre}"</h2>
           {qr && (
-            <div className="card" style={{ textAlign: 'center' }}>
-              <img src={qr} alt={`QR de ${rutaSeleccionada.nombre}`} style={{ width: 220, height: 220 }} />
-              <p className="muted" style={{ wordBreak: 'break-all' }}>{urlDeRuta(rutaSeleccionada.codigo)}</p>
-              <button className="btn ghost" type="button" onClick={() => window.print()}>Imprimir</button>
+            <div className={cn(tarjeta, 'flex flex-col items-center gap-3 text-center sm:flex-row sm:text-left')}>
+              <img src={qr} alt={`QR de ${rutaSeleccionada.nombre}`} className="size-40 shrink-0 rounded-lg border border-line" />
+              <div className="min-w-0">
+                <p className="inline-flex items-center gap-1.5 font-display text-sm font-semibold text-ink"><QrCode className="size-4 text-leaf" /> QR de "{rutaSeleccionada.nombre}"</p>
+                <p className="mt-1 break-all text-xs text-muted-foreground">{urlDeRuta(rutaSeleccionada.codigo)}</p>
+                <button type="button" onClick={() => window.print()} className={cn(botonSecundario, 'mt-3 inline-flex items-center gap-1.5')}>
+                  <Printer className="size-4" /> Imprimir
+                </button>
+              </div>
             </div>
           )}
 
-          <h2 style={{ marginTop: 28 }}>Estaciones</h2>
-          <form onSubmit={guardarEst}>
-            <label htmlFor="eorden">Orden</label>
-            <input id="eorden" type="number" value={formEstacion.orden} onChange={(e) => setFormEstacion({ ...formEstacion, orden: Number(e.target.value) })} />
-            <label htmlFor="enombre_es">Nombre (español)</label>
-            <input id="enombre_es" required value={formEstacion.nombre_es} onChange={(e) => setFormEstacion({ ...formEstacion, nombre_es: e.target.value })} />
-            <label htmlFor="enombre_en">Nombre (inglés)</label>
-            <input id="enombre_en" value={formEstacion.nombre_en} onChange={(e) => setFormEstacion({ ...formEstacion, nombre_en: e.target.value })} />
-            <label htmlFor="edesc_es">Descripción (español)</label>
-            <input id="edesc_es" value={formEstacion.descripcion_es} onChange={(e) => setFormEstacion({ ...formEstacion, descripcion_es: e.target.value })} />
-            <div className="stack" style={{ display: 'grid', gridTemplateColumns: formEstacion.id ? '1fr 1fr' : '1fr' }}>
-              <button className="btn" type="submit">{formEstacion.id ? 'Guardar cambios' : 'Agregar estación'}</button>
-              {formEstacion.id && <button className="btn ghost" type="button" onClick={() => setFormEstacion(ESTACION_VACIA)}>Cancelar</button>}
-            </div>
-          </form>
+          <div className={tarjeta}>
+            <h2 className="font-display text-lg text-ink">{formEstacion.id ? 'Editar estación' : 'Nueva estación'}</h2>
+            <form onSubmit={guardarEst} className="mt-1 grid gap-x-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="eorden" className={campoLabel}>Orden</label>
+                <input id="eorden" type="number" value={formEstacion.orden} onChange={(e) => setFormEstacion({ ...formEstacion, orden: Number(e.target.value) })} className={campoInput} />
+              </div>
+              <div>
+                <label htmlFor="enombre_es" className={campoLabel}>Nombre (español)</label>
+                <input id="enombre_es" required value={formEstacion.nombre_es} onChange={(e) => setFormEstacion({ ...formEstacion, nombre_es: e.target.value })} className={campoInput} />
+              </div>
+              <div>
+                <label htmlFor="enombre_en" className={campoLabel}>Nombre (inglés)</label>
+                <input id="enombre_en" value={formEstacion.nombre_en} onChange={(e) => setFormEstacion({ ...formEstacion, nombre_en: e.target.value })} className={campoInput} />
+              </div>
+              <div>
+                <label htmlFor="edesc_es" className={campoLabel}>Descripción (español)</label>
+                <input id="edesc_es" value={formEstacion.descripcion_es} onChange={(e) => setFormEstacion({ ...formEstacion, descripcion_es: e.target.value })} className={campoInput} />
+              </div>
+              <div className="mt-4 flex gap-3 sm:col-span-2">
+                <button type="submit" className={botonPrimario}>{formEstacion.id ? 'Guardar cambios' : 'Agregar estación'}</button>
+                {formEstacion.id && <button type="button" onClick={() => setFormEstacion(ESTACION_VACIA)} className={botonSecundario}>Cancelar</button>}
+              </div>
+            </form>
+          </div>
 
-          {estaciones?.map((est) => {
-            const idsAsignados = new Set(est.estacion_indicadores.map((v) => v.indicador_id))
-            return (
-              <div key={est.id} className="card" style={{ marginTop: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <b>{est.orden}. {est.nombre_es}</b>
-                  <div className="fila-validacion">
-                    <button className="pill" type="button" onClick={() => editarEst(est)}>Editar</button>
-                    <button className="pill off" type="button" onClick={() => eliminarEstacion(est.id).then(recargarEstaciones)}>Borrar</button>
+          <div className="flex flex-col gap-3">
+            {estaciones?.map((est) => {
+              const idsAsignados = new Set(est.estacion_indicadores.map((v) => v.indicador_id))
+              return (
+                <div key={est.id} className={tarjeta}>
+                  <div className="flex items-center justify-between gap-3">
+                    <b className="text-ink">{est.orden}. {est.nombre_es}</b>
+                    <div className="flex gap-1.5">
+                      <button type="button" onClick={() => editarEst(est)} className={cn(chip, 'bg-leaf-soft text-leaf-deep')}><Pencil className="size-3" /> Editar</button>
+                      <button type="button" onClick={() => eliminarEstacion(est.id).then(recargarEstaciones)} className={cn(chip, 'bg-cacao-soft text-cacao')}><Trash2 className="size-3" /> Borrar</button>
+                    </div>
+                  </div>
+                  <p className="mt-2 mb-2 text-sm text-muted-foreground">Indicadores en esta estación:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {indicadores.map((i) => {
+                      const asignado = idsAsignados.has(i.id)
+                      return (
+                        <button
+                          key={i.id} type="button"
+                          onClick={() => (asignado ? quitarIndicador(est.id, i.id) : asignarIndicador(est.id, i.id)).then(recargarEstaciones)}
+                          className={cn(chip, asignado ? 'bg-leaf-soft text-leaf-deep' : 'bg-muted text-muted-foreground')}
+                        >
+                          {i.emoji} {i.nombre_es}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
-                <p className="muted" style={{ margin: '8px 0' }}>Indicadores en esta estación:</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {indicadores.map((i) => {
-                    const asignado = idsAsignados.has(i.id)
-                    return (
-                      <button
-                        key={i.id}
-                        type="button"
-                        className={asignado ? 'pill' : 'pill off'}
-                        onClick={() => (asignado ? quitarIndicador(est.id, i.id) : asignarIndicador(est.id, i.id)).then(recargarEstaciones)}
-                      >
-                        {i.emoji} {i.nombre_es}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </>
       )}
-    </>
+    </div>
   )
 }
