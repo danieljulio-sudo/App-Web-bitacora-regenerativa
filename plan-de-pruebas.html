@@ -1,0 +1,192 @@
+<title>Plan de Pruebas de Campo</title>
+<style>
+  :root {
+    --paper: #EEF0EA; --surface: #FAFBF8; --ink: #24211C; --ink-soft: #4A473F; --muted: #6E7266;
+    --line: #D5D9CF; --leaf: #2F6B3A; --leaf-deep: #1F4A28; --leaf-soft: #DCE9DD;
+    --cacao: #5B3A21; --cacao-soft: #E9DED3; --pollen: #A9760A; --pollen-soft: #F5E8C4;
+    --shadow-sm: 0 2px 8px rgba(36, 33, 28, .06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #171814; --surface: #22241E; --ink: #ECEAE1; --ink-soft: #C9C6BA; --muted: #969A8C;
+      --line: #3A3D34; --leaf: #7FBF86; --leaf-deep: #A9D9AE; --leaf-soft: #253A2A;
+      --cacao: #C9976F; --cacao-soft: #3A2E23; --pollen: #E4B53A; --pollen-soft: #3D3416;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171814; --surface: #22241E; --ink: #ECEAE1; --ink-soft: #C9C6BA; --muted: #969A8C;
+    --line: #3A3D34; --leaf: #7FBF86; --leaf-deep: #A9D9AE; --leaf-soft: #253A2A;
+    --cacao: #C9976F; --cacao-soft: #3A2E23; --pollen: #E4B53A; --pollen-soft: #3D3416;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .3); color-scheme: dark;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600&display=swap');
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "Literata", ui-serif, Georgia, serif; line-height: 1.5;
+  }
+  h1, h2, .eyebrow, .n-total, .grupo-n {
+    font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  }
+  h1, h2 { text-wrap: balance; margin: 0; }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding-inline: 20px; }
+
+  header { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); padding-block: 16px; }
+  .eyebrow { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; color: var(--leaf-deep); }
+  h1 { font-size: 1.5rem; font-weight: 800; margin-top: 3px; }
+
+  .progreso { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .barra { flex: 1; height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 0%; background: linear-gradient(90deg, var(--leaf), var(--pollen)); transition: width .25s ease-out; transform-origin: left; }
+  .n-total { font-size: .82rem; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  main { padding-block: 26px 60px; }
+
+  .grupo { margin-bottom: 34px; }
+  .grupo-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .grupo-n { width: 24px; height: 24px; border-radius: 50%; background: var(--leaf); color: var(--surface); font-size: .75rem; font-weight: 700; display: grid; place-items: center; flex-shrink: 0; }
+  .grupo h2 { font-size: 1.05rem; font-weight: 700; }
+  .grupo p.nota { color: var(--muted); font-size: .88rem; margin: 2px 0 12px 34px; }
+
+  ul.lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .item {
+    display: flex; align-items: flex-start; gap: 12px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 12px; padding: 12px 14px; cursor: pointer; box-shadow: var(--shadow-sm);
+    transition: border-color .15s ease-out, background-color .15s ease-out;
+  }
+  .item:hover { border-color: var(--leaf); }
+  .item input[type="checkbox"] { margin-top: 2px; width: 18px; height: 18px; accent-color: var(--leaf); flex-shrink: 0; cursor: pointer; }
+  .item label { cursor: pointer; font-size: .96rem; }
+  .item.marcado { background: var(--leaf-soft); border-color: transparent; }
+  .item.marcado label { color: var(--ink-soft); text-decoration: line-through; text-decoration-color: var(--muted); }
+
+  .critico { border-left: 3px solid var(--cacao); }
+
+  .aviso {
+    display: flex; gap: 10px; margin-top: 10px; padding: 13px 15px; border-radius: 12px;
+    background: var(--pollen-soft); border-left: 3px solid var(--pollen); font-size: .92rem;
+  }
+
+  .reset { display: block; margin: 30px auto 0; background: none; border: 1px solid var(--line); color: var(--muted); font-size: .82rem; padding: 8px 16px; border-radius: 999px; cursor: pointer; font-family: inherit; }
+  .reset:hover { border-color: var(--cacao); color: var(--cacao); }
+</style>
+
+<header>
+  <div class="wrap">
+    <span class="eyebrow">Antes de la prueba con Carlos</span>
+    <h1>Plan de pruebas de campo</h1>
+    <div class="progreso">
+      <div class="barra"><i id="barra-fill"></i></div>
+      <span class="n-total" id="contador">0 / 0</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="grupo">
+    <div class="grupo-head"><span class="grupo-n">1</span><h2>Preparación (antes de salir)</h2></div>
+    <ul class="lista" data-grupo="prep">
+      <li class="item"><input type="checkbox" id="p1"><label for="p1">Corrí <code>actualizar-hallazgos.sql</code> y <code>actualizar-validaciones-rls.sql</code> en Supabase</label></li>
+      <li class="item"><input type="checkbox" id="p2"><label for="p2">Asigné los indicadores nuevos a sus estaciones en <code>/admin</code> → Rutas</label></li>
+      <li class="item"><input type="checkbox" id="p3"><label for="p3">Invité a Carlos como <b>administrador</b> en <code>/admin</code> → Usuarios</label></li>
+      <li class="item"><input type="checkbox" id="p4"><label for="p4">Borré cualquier ícono viejo de la app que tuviera instalado en el celular</label></li>
+      <li class="item"><input type="checkbox" id="p5"><label for="p5">Tengo a la mano el QR/link real de la ruta (<code>/admin</code> → Rutas)</label></li>
+    </ul>
+  </div>
+
+  <div class="grupo">
+    <div class="grupo-head"><span class="grupo-n">2</span><h2>Visitante: recorrido normal</h2></div>
+    <p class="nota">Hazlo tú primero, antes de que lo intente Carlos.</p>
+    <ul class="lista" data-grupo="visitante">
+      <li class="item"><input type="checkbox" id="v1"><label for="v1">Abro el link/QR real (no el de ejemplo) y veo la bienvenida</label></li>
+      <li class="item"><input type="checkbox" id="v2"><label for="v2">Completo nombre, país y correo (opcional)</label></li>
+      <li class="item"><input type="checkbox" id="v3"><label for="v3">Registro al menos un indicador de <b>cada tipo</b>: conteo, sí/no, escala y foto</label></li>
+      <li class="item"><input type="checkbox" id="v4"><label for="v4">En una estación, uso "¿Viste algo que no está aquí?" con una foto real</label></li>
+      <li class="item"><input type="checkbox" id="v5"><label for="v5">Completo las preguntas de cierre y veo la pantalla de "Gracias" con el conteo correcto</label></li>
+    </ul>
+  </div>
+
+  <div class="grupo">
+    <div class="grupo-head"><span class="grupo-n">3</span><h2>Sin señal (la prueba que más importa)</h2></div>
+    <ul class="lista" data-grupo="offline">
+      <li class="item critico"><input type="checkbox" id="s1"><label for="s1">Activo modo avión y repito el recorrido / sigo registrando igual</label></li>
+      <li class="item critico"><input type="checkbox" id="s2"><label for="s2">Desactivo modo avión, espero ~1 minuto</label></li>
+      <li class="item critico"><input type="checkbox" id="s3"><label for="s3">Confirmo que esa bitácora ya aparece en <code>/guia</code> o <code>/admin</code> → Recorridos</label></li>
+    </ul>
+    <div class="aviso">📡 Si esto falla, es lo más importante que me avises — es la promesa central de la app (RNF-01: funciona sin señal en el campo).</div>
+  </div>
+
+  <div class="grupo">
+    <div class="grupo-head"><span class="grupo-n">4</span><h2>Guía / Panel (con la cuenta de Carlos)</h2></div>
+    <ul class="lista" data-grupo="guia">
+      <li class="item"><input type="checkbox" id="g1"><label for="g1">Entro a <code>/guia</code> con la cuenta de administrador</label></li>
+      <li class="item"><input type="checkbox" id="g2"><label for="g2">Inicio un recorrido nuevo (ruta real, tamaño de grupo)</label></li>
+      <li class="item"><input type="checkbox" id="g3"><label for="g3">Hago las pruebas 2 y 3 <b>durante</b> este recorrido activo, para que quede vinculado</label></li>
+      <li class="item"><input type="checkbox" id="g4"><label for="g4">Confirmo, ajusto y descarto al menos un indicador de cada tipo</label></li>
+      <li class="item"><input type="checkbox" id="g5"><label for="g5">Reviso "Hallazgos sin catalogar" y veo la foto correctamente</label></li>
+      <li class="item"><input type="checkbox" id="g6"><label for="g6">Cierro el recorrido</label></li>
+      <li class="item"><input type="checkbox" id="g7"><label for="g7">Exporto a Excel y lo abro — se ve bien, sin nada raro</label></li>
+    </ul>
+  </div>
+
+  <div class="grupo">
+    <div class="grupo-head"><span class="grupo-n">5</span><h2>Instalar como app</h2></div>
+    <ul class="lista" data-grupo="pwa">
+      <li class="item"><input type="checkbox" id="a1"><label for="a1">"Agregar a pantalla de inicio" desde el navegador</label></li>
+      <li class="item"><input type="checkbox" id="a2"><label for="a2">Abro desde ese ícono y repito un registro corto — funciona igual</label></li>
+    </ul>
+  </div>
+
+  <div class="aviso">🐞 <span><b>Si algo falla:</b> anota en qué paso exacto fue y mándame una captura. No canceles la prueba con Carlos por eso — sigue probando, lo arreglamos después.</span></div>
+
+  <button class="reset" id="btn-reset" type="button">Reiniciar marcas</button>
+</main>
+
+<script>
+  (function () {
+    var KEY = 'bitacora-plan-pruebas-v1';
+    var checks = Array.prototype.slice.call(document.querySelectorAll('.item input[type="checkbox"]'));
+    var total = checks.length;
+
+    function cargar() {
+      try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; }
+    }
+    function guardar(estado) {
+      try { localStorage.setItem(KEY, JSON.stringify(estado)); } catch (e) {}
+    }
+    function actualizarContador() {
+      var marcados = checks.filter(function (c) { return c.checked; }).length;
+      document.getElementById('contador').textContent = marcados + ' / ' + total;
+      document.getElementById('barra-fill').style.width = (total ? (marcados / total * 100) : 0) + '%';
+    }
+
+    var estado = cargar();
+    checks.forEach(function (chk) {
+      chk.checked = !!estado[chk.id];
+      chk.closest('.item').classList.toggle('marcado', chk.checked);
+      chk.addEventListener('change', function () {
+        chk.closest('.item').classList.toggle('marcado', chk.checked);
+        var actual = cargar();
+        actual[chk.id] = chk.checked;
+        guardar(actual);
+        actualizarContador();
+      });
+    });
+    actualizarContador();
+
+    document.getElementById('btn-reset').addEventListener('click', function () {
+      checks.forEach(function (chk) {
+        chk.checked = false;
+        chk.closest('.item').classList.remove('marcado');
+      });
+      guardar({});
+      actualizarContador();
+    });
+  })();
+</script>
