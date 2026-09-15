@@ -1,3 +1,48 @@
+@import "tailwindcss";
+
+/* Mapea nuestras variables (de siempre) a las utilidades de Tailwind
+   (bg-leaf, text-ink-soft, bg-primary…) — así las clases de Tailwind y el
+   CSS escrito a mano leen exactamente los mismos colores, nunca dos
+   paletas por separado. Referencian var(--leaf) etc. en vivo, así que el
+   modo oscuro (abajo) las actualiza solas, sin tocar esto. */
+@theme inline {
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 16px; --radius-xl: 20px; --radius-2xl: 24px;
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Literata", ui-serif, Georgia, serif;
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
+  --color-leaf: var(--leaf);
+  --color-leaf-deep: var(--leaf-deep);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-cacao: var(--cacao);
+  --color-cacao-soft: var(--cacao-soft);
+  --color-pollen: var(--pollen);
+  --color-pollen-soft: var(--pollen-soft);
+  --color-sky: var(--sky);
+
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--ink);
+  --color-primary: var(--leaf);
+  --color-primary-foreground: var(--on-leaf);
+  --color-secondary: var(--leaf-soft);
+  --color-secondary-foreground: var(--leaf-deep);
+  --color-muted: var(--muted-bg);
+  --color-muted-foreground: var(--muted);
+  --color-accent: var(--pollen-soft);
+  --color-accent-foreground: var(--on-pollen);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--on-leaf);
+  --color-border: var(--line);
+  --color-input: var(--line);
+  --color-ring: var(--leaf);
+}
+
 /* Paleta y tipografía del proyecto. Cambiar un color aquí lo cambia en toda la app. */
 :root {
   --paper: #EEF0EA; --surface: #FAFBF8; --ink: #24211C; --ink-soft: #4A473F; --muted: #6E7266;
@@ -17,6 +62,12 @@
   --aurora-1: rgba(196, 144, 15, .32);
   --aurora-2: rgba(47, 107, 58, .28);
   --aurora-3: rgba(91, 58, 33, .16);
+  /* tokens nuevos del sistema shadcn/Tailwind — el resto de la paleta ya
+     existía, estos son puramente aditivos. */
+  --muted-bg: #E6E9E1;
+  --on-leaf: #FAFBF8;      /* texto sobre botones/fondos verdes */
+  --on-pollen: #6D4F06;    /* texto sobre fondos de polen */
+  --destructive: #A33B28;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -29,6 +80,10 @@
     --aurora-1: rgba(228, 181, 58, .22);
     --aurora-2: rgba(127, 191, 134, .20);
     --aurora-3: rgba(201, 151, 111, .12);
+    --muted-bg: #2B2822;
+    --on-leaf: #14170F;     /* en oscuro --leaf es un verde claro: texto oscuro, no blanco */
+    --on-pollen: #E4B53A;
+    --destructive: #D4705C;
   }
 }
 
@@ -61,7 +116,7 @@ p { margin: 0 0 12px; color: var(--ink-soft); text-wrap: pretty; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 15px 18px;
   border-radius: 14px; border: 0; background: linear-gradient(135deg, var(--leaf), var(--leaf-deep));
-  color: #fff; font-family: var(--display); font-weight: 700;
+  color: var(--on-leaf); font-family: var(--display); font-weight: 700;
   font-size: 17px; text-decoration: none; box-shadow: var(--shadow-leaf);
   transition: transform 150ms var(--ease-out), box-shadow 150ms var(--ease-out), opacity 150ms var(--ease-out);
 }
