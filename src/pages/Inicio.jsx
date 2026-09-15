@@ -1,37 +1,50 @@
 import { Link } from 'react-router-dom'
 import { supabaseListo } from '../lib/supabase.js'
+import './Inicio.css'
 
 export default function Inicio() {
   return (
     <>
-      <p className="eyebrow">Bitácora Regenerativa</p>
+      <p className="eyebrow inicio-hero">Bitácora Regenerativa</p>
       <h1>Mide el impacto regenerativo de tus recorridos</h1>
       <p>El visitante registra lo que ve durante el recorrido, el guía valida y la finca ve los resultados en el tiempo.</p>
 
-      <div style={{ display: 'grid', gap: 12, marginTop: 8 }}>
-        <div className="card">
-          <span className="pill">Visitante</span>
-          <h2 style={{ marginTop: 8 }}>Escanea el QR de tu ruta</h2>
-          <p style={{ margin: '0 0 10px' }}>Cada ruta tiene su propio código, ubicado al inicio del recorrido. No necesita instalar nada.</p>
-          <Link to="/r/ruta-cacao" className="btn ghost">Probar con la ruta de ejemplo →</Link>
-        </div>
-
-        <Link to="/guia" className="card" style={{ textDecoration: 'none' }}>
-          <span className="pill warn">Guía</span>
-          <h2 style={{ marginTop: 8 }}>Guía</h2>
-          <p style={{ margin: 0 }}>Inicia el recorrido, valida las observaciones del grupo y registra las tuyas.</p>
+      <div className="menu">
+        <Link to="/r/ruta-cacao" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--leaf-soft)' }} aria-hidden="true">🥾</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill">Visitante</span>
+            <h2>Escanea el QR de tu ruta</h2>
+            <p>Cada ruta tiene su propio código, al inicio del recorrido. No necesita instalar nada — toca esta tarjeta para probar con la ruta de ejemplo.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
         </Link>
 
-        <Link to="/admin" className="card" style={{ textDecoration: 'none' }}>
-          <span className="pill off">Finca</span>
-          <h2 style={{ marginTop: 8 }}>Panel de la finca</h2>
-          <p style={{ margin: 0 }}>Catálogo, rutas, QR, recorridos y usuarios.</p>
+        <Link to="/guia" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--pollen-soft)' }} aria-hidden="true">🧭</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill warn">Guía</span>
+            <h2>Guía</h2>
+            <p>Inicia el recorrido, valida las observaciones del grupo y registra las tuyas.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
+        </Link>
+
+        <Link to="/admin" className="card tarjeta-menu">
+          <div className="tarjeta-menu-icono" style={{ '--acento-local': 'var(--cacao-soft)' }} aria-hidden="true">🌾</div>
+          <div className="tarjeta-menu-cuerpo">
+            <span className="pill off">Finca</span>
+            <h2>Panel de la finca</h2>
+            <p>Catálogo, rutas, QR, recorridos y usuarios.</p>
+          </div>
+          <span className="tarjeta-menu-flecha" aria-hidden="true">→</span>
         </Link>
       </div>
 
-      <p className="muted" style={{ marginTop: 20 }}>
-        Nube: {supabaseListo ? 'conectada a Supabase' : 'sin configurar — falta el archivo .env'}
-      </p>
+      <div className={`estado-nube ${supabaseListo ? 'ok' : 'mal'}`}>
+        <i />
+        {supabaseListo ? 'Conectado a Supabase' : 'Falta conectar Supabase (.env)'}
+      </div>
     </>
   )
 }
