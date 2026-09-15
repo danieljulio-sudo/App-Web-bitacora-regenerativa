@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css"; /* clases animate-in/slide-in-from-bottom/etc. — solo las usa el Sheet del guía */
 
 /* Mapea nuestras variables (de siempre) a las utilidades de Tailwind
    (bg-leaf, text-ink-soft, bg-primary…) — así las clases de Tailwind y el
